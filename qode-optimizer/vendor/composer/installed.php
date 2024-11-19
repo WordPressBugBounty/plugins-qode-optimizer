@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => '__root__',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
+        'type' => 'library',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        '__root__' => array(
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'fileeye/pel' => array(
+            'pretty_version' => '0.10.0',
+            'version' => '0.10.0.0',
+            'reference' => '5da1e6ab73508056f0abb79f560d20a315d1aefe',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../fileeye/pel',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'lsolesen/pel' => array(
+            'pretty_version' => '0.9.12',
+            'version' => '0.9.12.0',
+            'reference' => 'b95fe29cdacf9d36330da277f10910a13648c84c',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../lsolesen/pel',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

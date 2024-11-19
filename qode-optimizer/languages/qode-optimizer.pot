@@ -1,0 +1,1172 @@
+# Copyright (C) 2024 Qode Interactive
+# This file is distributed under the GPLv3.
+msgid ""
+msgstr ""
+"Project-Id-Version: QODE Optimizer 1.0.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/qode-optimizer\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-10-10T12:02:22+02:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: qode-optimizer\n"
+
+#. Plugin Name of the plugin
+#: D:\projects\image-optimization\app\public\wp-content\plugins\qode-optimizer\class-qode-optimizer.php
+msgid "QODE Optimizer"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: D:\projects\image-optimization\app\public\wp-content\plugins\qode-optimizer\class-qode-optimizer.php
+msgid "https://qodeinteractive.com/qode-optimizer/"
+msgstr ""
+
+#. Description of the plugin
+#: D:\projects\image-optimization\app\public\wp-content\plugins\qode-optimizer\class-qode-optimizer.php
+msgid "The QODE Optimizer plugin is developed to allow you to convert, compress and adjust file sizes for all the images found on your website."
+msgstr ""
+
+#. Author of the plugin
+#: D:\projects\image-optimization\app\public\wp-content\plugins\qode-optimizer\class-qode-optimizer.php
+msgid "Qode Interactive"
+msgstr ""
+
+#. Author URI of the plugin
+#: D:\projects\image-optimization\app\public\wp-content\plugins\qode-optimizer\class-qode-optimizer.php
+msgid "https://qodeinteractive.com/"
+msgstr ""
+
+#: class-qode-optimizer.php:135
+msgid "Optimizer"
+msgstr ""
+
+#: class-qode-optimizer.php:153
+#: inc/admin/inc/admin-pages/sub-pages/optimization/class-qode-optimizer-admin-page-optimization.php:38
+msgid "Optimization"
+msgstr ""
+
+#: class-qode-optimizer.php:154
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:235
+msgid "Optimization Options"
+msgstr ""
+
+#: class-qode-optimizer.php:170
+msgid "WebP"
+msgstr ""
+
+#: class-qode-optimizer.php:171
+msgid "WebP Options"
+msgstr ""
+
+#: class-qode-optimizer.php:184
+msgid "Advanced"
+msgstr ""
+
+#: class-qode-optimizer.php:185
+msgid "Advanced Options"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:35
+#: classes/class-qode-optimizer-bulk.php:45
+#: classes/class-qode-optimizer-bulk.php:48
+#: classes/class-qode-optimizer-bulk.php:316
+#: classes/class-qode-optimizer-bulk.php:326
+#: classes/class-qode-optimizer-bulk.php:329
+#: classes/class-qode-optimizer-bulk.php:612
+#: classes/class-qode-optimizer-bulk.php:622
+#: classes/class-qode-optimizer-bulk.php:625
+#: classes/class-qode-optimizer-bulk.php:687
+#: classes/class-qode-optimizer-bulk.php:697
+#: classes/class-qode-optimizer-bulk.php:700
+#: classes/class-qode-optimizer-bulk.php:762
+#: classes/class-qode-optimizer-bulk.php:772
+#: classes/class-qode-optimizer-bulk.php:775
+#: classes/class-qode-optimizer-issue.php:228
+#: classes/class-qode-optimizer-issue.php:231
+#: classes/class-qode-optimizer-log.php:180
+#: classes/class-qode-optimizer-log.php:207
+#: classes/class-qode-optimizer-log.php:239
+#: classes/class-qode-optimizer-media.php:535
+#: classes/class-qode-optimizer-media.php:544
+#: classes/class-qode-optimizer-media.php:568
+#: classes/class-qode-optimizer-media.php:578
+#: classes/class-qode-optimizer-media.php:581
+#: classes/class-qode-optimizer-media.php:627
+#: classes/class-qode-optimizer-media.php:637
+#: classes/class-qode-optimizer-media.php:640
+#: classes/class-qode-optimizer-media.php:673
+#: classes/class-qode-optimizer-media.php:683
+#: classes/class-qode-optimizer-media.php:686
+#: classes/class-qode-optimizer-media.php:949
+#: classes/class-qode-optimizer-media.php:959
+#: classes/class-qode-optimizer-media.php:962
+#: classes/class-qode-optimizer-media.php:1025
+#: classes/class-qode-optimizer-media.php:1035
+#: classes/class-qode-optimizer-media.php:1038
+#: classes/class-qode-optimizer-media.php:1100
+#: classes/class-qode-optimizer-media.php:1110
+#: classes/class-qode-optimizer-media.php:1113
+#: classes/class-qode-optimizer-media.php:1176
+#: classes/class-qode-optimizer-media.php:1186
+#: classes/class-qode-optimizer-media.php:1189
+#: classes/class-qode-optimizer-options.php:169
+#: classes/class-qode-optimizer-options.php:172
+#: classes/class-qode-optimizer-options.php:207
+#: classes/class-qode-optimizer-options.php:210
+#: classes/class-qode-optimizer-options.php:255
+#: classes/class-qode-optimizer-options.php:258
+#: classes/class-qode-optimizer-utility.php:237
+#: classes/class-qode-optimizer-utility.php:240
+#: classes/class-qode-optimizer-utility.php:281
+#: classes/class-qode-optimizer-utility.php:284
+#: classes/class-qode-optimizer-utility.php:326
+#: classes/class-qode-optimizer-utility.php:329
+#: classes/class-qode-optimizer-utility.php:505
+#: classes/class-qode-optimizer-utility.php:508
+#: classes/class-qode-optimizer-utility.php:564
+#: classes/class-qode-optimizer-utility.php:567
+msgid "Access denied."
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:132
+#: classes/class-qode-optimizer-bulk.php:412
+#: classes/class-qode-optimizer-media.php:764
+msgid "Successful"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:147
+#: classes/class-qode-optimizer-bulk.php:433
+msgid "skipped"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:148
+#: classes/class-qode-optimizer-bulk.php:434
+msgid "Images already optimized and skipped"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:303
+#: classes/class-qode-optimizer-bulk.php:599
+#: classes/class-qode-optimizer-media.php:936
+msgid "All images optimized successfully"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:305
+#: classes/class-qode-optimizer-bulk.php:601
+#: classes/class-qode-optimizer-media.php:938
+msgid "Some/all images were not optimized"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:674
+#: classes/class-qode-optimizer-bulk.php:749
+#: classes/class-qode-optimizer-bulk.php:821
+#: classes/class-qode-optimizer-media.php:555
+#: classes/class-qode-optimizer-media.php:614
+#: classes/class-qode-optimizer-options.php:188
+#: classes/class-qode-optimizer-options.php:232
+msgid "Success"
+msgstr ""
+
+#: classes/class-qode-optimizer-bulk.php:676
+#: classes/class-qode-optimizer-bulk.php:751
+#: classes/class-qode-optimizer-bulk.php:823
+msgid "Failure"
+msgstr ""
+
+#: classes/class-qode-optimizer-filesystem.php:397
+msgid "No savings"
+msgstr ""
+
+#. translators: 1: Size of savings in bytes, kb, mb 2: Percentage savings
+#: classes/class-qode-optimizer-filesystem.php:407
+msgid "Reduced by %1$s (%2$s)"
+msgstr ""
+
+#: classes/class-qode-optimizer-general.php:95
+msgid "QO Bulk Optimize"
+msgstr ""
+
+#: classes/class-qode-optimizer-image.php:577
+msgid "Unsuccessful"
+msgstr ""
+
+#: classes/class-qode-optimizer-issue.php:256
+#: classes/class-qode-optimizer-utility.php:310
+msgid "Optimization history issues resolved"
+msgstr ""
+
+#: classes/class-qode-optimizer-log.php:177
+#: classes/class-qode-optimizer-log.php:204
+msgid "The system Log is empty."
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:48
+#: inc/admin/inc/admin-pages/class-qode-optimizer-admin-general-page.php:17
+#: inc/admin/inc/admin-pages/class-qode-optimizer-admin-general-page.php:64
+msgid "Qode Optimizer"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:296
+msgid "Optimize"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:300
+msgid "Restore Original"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:307
+msgid "Regenerate Thumbnails"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:311
+msgid "Try To Recover"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:315
+msgid "Add Watermark"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:490
+msgid "Original:"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:495
+msgid "Optimization:"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:499
+msgid "WebP:"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:506
+msgid "Regeneration Warning:"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:508
+msgid "System detects this image was replaced manually, and regeneration process should be done. "
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:510
+msgid "System also detects only scaled image was replaced, so in order for regeneration process to create valid images you need to replace the original image as well, as regeneration process is using that original image. "
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:512
+msgid "Once regeneration is finished, all optimization info for this image will be reset and image will be available for optimization again"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:517
+msgid "Recover Warning:"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:517
+msgid "System detects this image is nowhere to be found, and recovering process should be attempted."
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:557
+#: classes/class-qode-optimizer-media.php:616
+#: classes/class-qode-optimizer-options.php:190
+msgid "Fail"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:660
+msgid "Image should be converted"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:663
+msgid "Image should not be converted"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:1012
+#: classes/class-qode-optimizer-media.php:1231
+msgid "All images restored successfully"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:1014
+#: classes/class-qode-optimizer-media.php:1233
+msgid "Some/all images were not restored"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:1087
+msgid "All images regenerated successfully"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:1089
+msgid "Some/all images were not regenerated"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:1163
+msgid "All images watermarked successfully"
+msgstr ""
+
+#: classes/class-qode-optimizer-media.php:1165
+msgid "Some/all images were not watermarked"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:217
+#: classes/class-qode-optimizer-options.php:269
+msgid "Unknown option"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:239
+#: classes/class-qode-optimizer-options.php:389
+msgid "Some error occurred"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:279
+msgid "Htaccess not available"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:283
+msgid "Unknown option value"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:312
+#: classes/class-qode-optimizer-options.php:365
+msgid "Rewriting rules have been successfully inserted"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:315
+#: classes/class-qode-optimizer-options.php:328
+#: classes/class-qode-optimizer-options.php:368
+msgid "Failed to insert rules"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:325
+msgid "Cloudflare protection detected... rewrite rules have been removed, to avoid any possible conflicts"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:342
+msgid "Rewriting rules have been successfully removed"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:345
+msgid "Failed to remove rules"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:372
+msgid "Cloudflare protection detected... rewrite rules have been discarded, to avoid any possible conflicts"
+msgstr ""
+
+#: classes/class-qode-optimizer-options.php:380
+msgid "There were no rewrite rules to remove"
+msgstr ""
+
+#: classes/class-qode-optimizer-utility.php:265
+msgid "Optimization history cleaned up"
+msgstr ""
+
+#: classes/class-qode-optimizer-utility.php:372
+msgid "Optimization history deleted"
+msgstr ""
+
+#: classes/class-qode-optimizer-utility.php:533
+msgid "WebP images deleted"
+msgstr ""
+
+#: classes/class-qode-optimizer-utility.php:592
+msgid "All WebP images deleted"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/class-qode-optimizer-admin-notice.php:96
+msgid "Thank you for the feedback!"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/class-qode-optimizer-admin-notice.php:98
+msgid "Something went wrong with sending feedback."
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:22
+msgid "Quick Feedback"
+msgstr ""
+
+#. translators: %s - Plugin name.
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:32
+msgid "If you have a moment, please share why you are deactivating %s:"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:44
+msgid "I no longer need the plugin"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:53
+msgid "I found a better plugin"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:56
+msgid "Please share which plugin"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:63
+msgid "I couldn't get plugin to work"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:72
+msgid "This is a temporary deactivation"
+msgstr ""
+
+#. translators: %s - Plugin name.
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:85
+msgid "I have %s Premium"
+msgstr ""
+
+#. translators: 1. Plugin name; 2. Plugin name; 3. Plugin name.
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:96
+msgid "Wait! Don't deactivate %1$s. You have to activate both %2$s and %3$s Premium in order for the plugin to work."
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:109
+msgid "Other"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:112
+msgid "Please share the reason"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:116
+msgid "Submit & Deactivate"
+msgstr ""
+
+#: inc/admin/inc/admin-notice/templates/admin-deactivation-form.php:117
+msgid "Skip & Deactivate"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/class-qode-optimizer-admin-general-page.php:62
+msgid "Help Center"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/class-qode-optimizer-admin-general-page.php:63
+msgid "Video Tutorials"
+msgstr ""
+
+#. translators: 1. Premium plugin url.
+#: inc/admin/inc/admin-pages/class-qode-optimizer-admin-general-page.php:74
+#: inc/admin/inc/admin-pages/options-custom-pages/helper.php:10
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/helper.php:96
+msgid "Upgrade"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/dashboard.php:17
+msgid "Help"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:12
+msgid "Documentation"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:13
+msgid "Detailed QODE Optimizer user manual and documentation."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:14
+msgid "Read More"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:20
+msgid "Support"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:21
+msgid "Our dedicated team of support pros is there for your plugin-related questions."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:22
+msgid "Submit a Ticket"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:34
+msgid "Rate QODE Optimizer"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:35
+msgid "Let us know about your experience with the QODE Optimizer."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/boxes.php:36
+msgid "Rate Us"
+msgstr ""
+
+#. translators: %s - current date.
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/footer.php:12
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/footer.php:12
+#: inc/admin/inc/admin-pages/templates/footer.php:12
+msgid "Copyright &copy; %d Qode Interactive, All rights reserved"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/header.php:8
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/header.php:8
+#: inc/admin/inc/admin-pages/templates/header.php:8
+msgid "Qode Logo"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/header.php:9
+msgid "QODE Optimizer Help"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/header.php:10
+msgid "Check out the Knowledge Base articles, user guide or contact our support professionals"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/knowledge.php:9
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/knowledge.php:21
+msgid "Knowledge Base"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/knowledge.php:10
+msgid "Find the answers to all types of WordPress-related questions by browsing our Knowledge Base articles."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/knowledge.php:12
+msgid "View More"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/subscribe.php:8
+msgid "Qode Newsletter"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/subscribe.php:9
+msgid "Subscribe  to get all our news & updates more words "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/help/templates/parts/subscribe.php:13
+msgid "Your Email..."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/dashboard.php:17
+msgid "Qode Products"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/helper.php:89
+msgid "Activate"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/helper.php:112
+msgid "Activated"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/helper.php:128
+msgid "Get Free Version"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/all-products.php:9
+msgid "Build beautiful modern websites with ease"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/all-products.php:10
+msgid "View All Products"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/all-products.php:13
+msgid "All Products"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/header.php:9
+msgid "All Qode Products"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/header.php:10
+msgid "Plugins and website templates with powerful options & features for creating all types of websites"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/options-custom-pages/qode-products/templates/parts/plugins.php:18
+msgid "More Info"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/class-qode-optimizer-admin-page-log.php:31
+msgid "System Log"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:17
+msgid "System log was successfully deleted"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:25
+msgid "Open Log"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:29
+msgid "Download Log"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:33
+msgid "Delete Log"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:47
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:64
+msgid "System log is not enabled"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:51
+msgid "Here you’ll be able to view and analyze the steps that the system takes during all types of image optimization processes. The system log page lets you track processes that affect specific images, see the results of these processes, and helps you fine-tune your image optimization experience."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/log/templates/log.php:52
+msgid "Note that it is advisable to keep the system log turned on during analysis period only, as leaving it on all the time may have an impact on performance, cause slowdowns, and affect memory consumption negatively"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:236
+msgid "Choose the options for the process of image optimization"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:239
+msgid "Media Library"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:246
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:294
+msgid "None"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:254
+msgid "Selected images only"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:263
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:302
+msgid "All unoptimized images"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:272
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:311
+msgid "All images"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:276
+msgid "There are no images in Media Library right now. Please, go and upload some first."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:287
+msgid "Additional Folders"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:315
+msgid "There are no images in additional folders right now."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:327
+msgid "Force Optimization (Images that are already optimized will be skipped by default. Check this option if you want to optimize them again)"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:335
+msgid "Start Optimization"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:342
+msgid "Processing, please wait..."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:344
+msgid "Done!"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/optimization/templates/optimization.php:347
+msgid " of "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/regeneration/class-qode-optimizer-admin-page-regeneration.php:31
+msgid "Regeneration (Premium)"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/regeneration/templates/regeneration.php:10
+#: inc/admin/inc/admin-pages/sub-pages/restoration/templates/restoration.php:10
+msgid "Premium Module"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/regeneration/templates/regeneration.php:11
+#: inc/admin/inc/admin-pages/sub-pages/restoration/templates/restoration.php:11
+msgid "Qode Optimizer Premium plugin is required for this module to be operational."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/restoration/class-qode-optimizer-admin-page-restoration.php:31
+msgid "Restoration (Premium)"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/class-qode-optimizer-admin-page-status.php:42
+msgid "Status"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:9
+msgid "passed"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:10
+msgid "not passed"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:11
+msgid "yes"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:12
+msgid "no"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:13
+msgid "installed"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:14
+msgid "executable"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:18
+msgid "Plugin status check"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:21
+msgid "General"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:23
+msgid "Operating System"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:29
+msgid "CPU Architecture"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:44
+msgid "PHP Version Requirement (PHP v5.5.0 or later)"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:52
+msgid "PHP Libraries"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:65
+msgid "GraphicsMagick Support Exists"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:69
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:89
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:109
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:133
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:153
+msgid "How to install"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:85
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:129
+msgid "ImageMagick Support Exists"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:105
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:149
+msgid "GD Support Exists"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:116
+msgid "PHP WebP Support"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:160
+msgid "Command Line Tools Support"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:171
+msgid "Support Exists"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/status/templates/status.php:179
+msgid "Command Line Tools"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/class-qode-optimizer-admin-page-utilities.php:38
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:116
+msgid "Utilities"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:29
+msgid "Issues"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:31
+msgid "Invalid Optimization History"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:32
+msgid "Changing already optimized images manually can potentially create certain issues and inconsistencies with information saved in the system, rendering it unusable. In order to resolve this, the information needs to be corrected. You can perform that action here"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:44
+msgid "There are some fixable issue(s) with optimized images right now. Count: "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:52
+msgid "There are some not fixable issue(s). Count: "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:57
+msgid "In order to resolve them you need to change the ORIGINAL (uploaded) image as well for regenerate thumbnails process to create valid images. Original images that need replacing are:"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:67
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:102
+msgid "No issues detected."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:73
+msgid "Resolve"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:78
+msgid "Details"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:85
+msgid "Optimization History Cleanup"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:86
+msgid "After intensive optimization processes (e.g. modifying images back & forth, altering original image sizes, regenerating thumbnails, deleting images), there is a possibility the optimization system still stores some outdated and presently irrelevant image information. An example of this would be optimization/backup info regarding manually deleted images still present in system database. Here you can clean up the optimization database and delete redundant information"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:97
+msgid "There are some backup and/or optimization record(s) that need cleaning up right now. Count: "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:108
+msgid "Clean Up"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:118
+msgid "Optimization History Removal"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:119
+msgid "The full image optimization history is saved in the system database storage. This history keeps track of all modifications made on each of the optimized images so that the efficiency of the optimization process can be observed. It also makes sure that the images are fully restorable to their original forms and prevents the cascading optimization of images. To perform additional image optimization after the initial optimization process, you can delete the optimization history here, effectively making the modified images ‘new’ originals"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:127
+msgid "There are some optimized image(s) right now. Count: "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:132
+msgid "There are no optimized images right now."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:138
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-file.php:27
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-image.php:42
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-file.php:26
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-image.php:42
+msgid "Remove"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:147
+msgid "WebP Images Removal"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:148
+msgid "If you don't need WebP images created by optimization processes, you remove them from the system here"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:156
+msgid "There are some optimized image(s) that include WebP images as well. Count: "
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:161
+msgid "There are no optimized images that include WebP images as well."
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:167
+msgid "Remove Created Ones Only"
+msgstr ""
+
+#: inc/admin/inc/admin-pages/sub-pages/utilities/templates/utilities.php:172
+msgid "Remove All On Server"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-field-repeater-inner.php:26
+msgid "Add New Item"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-field-repeater.php:26
+msgid "+ Add New Item"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-options.php:147
+msgid "Clear"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-options.php:148
+msgid "Clear color"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-options.php:149
+#: inc/admin/inc/fonts/helper.php:115
+msgid "Default"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-options.php:150
+msgid "Select default color"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-options.php:151
+msgid "Select Color"
+msgstr ""
+
+#: inc/admin/inc/common/core/class-qode-optimizer-framework-options.php:152
+msgid "Color value"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-file.php:18
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-file.php:18
+msgid "File Thumbnail"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-file.php:26
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-file.php:25
+msgid "Select File"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-file.php:26
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-image.php:41
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-file.php:25
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-image.php:41
+msgid "Upload"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-image.php:21
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-image.php:32
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-image.php:21
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-image.php:32
+msgid "Image Thumbnail"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-image.php:41
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-image.php:41
+msgid "Select Image"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-yesno.php:13
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-yesno.php:13
+msgid "Yes"
+msgstr ""
+
+#: inc/admin/inc/common/fields-wp/class-qode-optimizer-framework-field-wp-yesno.php:17
+#: inc/admin/inc/common/fields/class-qode-optimizer-framework-field-yesno.php:15
+msgid "No"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/core/class-qode-optimizer-framework-options-admin.php:19
+msgid "Qode Options"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/core/class-qode-optimizer-framework-options-admin.php:156
+msgid "Saved"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/core/class-qode-optimizer-framework-options-admin.php:161
+#: inc/admin/inc/common/modules/admin/core/class-qode-optimizer-framework-options-admin.php:188
+msgid "Wrong options trigger"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/core/class-qode-optimizer-framework-options-admin.php:183
+msgid "Options reset to default"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/templates/holder-custom.php:18
+#: inc/admin/inc/common/modules/admin/templates/holder.php:19
+msgid "Admin Qode Interactive image"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/templates/holder-custom.php:23
+#: inc/admin/inc/common/modules/admin/templates/holder.php:24
+msgid "Search Options"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/templates/holder-custom.php:31
+#: inc/admin/inc/common/modules/admin/templates/holder.php:32
+msgid "Saved!"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/templates/holder-custom.php:35
+#: inc/admin/inc/common/modules/admin/templates/holder.php:36
+msgid "Save Changes"
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/templates/holder-custom.php:38
+#: inc/admin/inc/common/modules/admin/templates/holder.php:39
+msgid "Are you sure? You will reset all options to default values. This will also apply on already imported demo."
+msgstr ""
+
+#: inc/admin/inc/common/modules/admin/templates/holder-custom.php:38
+#: inc/admin/inc/common/modules/admin/templates/holder.php:39
+msgid "Reset All"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:20
+msgid "Backup Method"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:21
+msgid "Set backup method for original images"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:23
+msgid "Local Folders"
+msgstr ""
+
+#. translators: %s - filesystem path to the root of the WordPress installation.
+#: inc/general/dashboard/admin/advanced-options.php:30
+msgid "Include folder paths that contain images that should be optimized. Note that each line should contain 1 full filesystem path, and not the URL (e.g. filesystem path to the root of your WordPress installation is %s)"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:36
+msgid "Optimize Additional Folders"
+msgstr ""
+
+#. translators: %s - filesystem path to the root of the WordPress installation.
+#: inc/general/dashboard/admin/advanced-options.php:45
+msgid "Include paths for images that shouldn't be optimized. Note that each line should contain 1 full filesystem path, and not the URL (e.g. filesystem path to the root of your WordPress installation is %s)"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:51
+msgid "Exclude Images From Optimization"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:63
+msgid "Enable System Log"
+msgstr ""
+
+#: inc/general/dashboard/admin/advanced-options.php:64
+msgid "Enable to perform automatic system logging of any optimization action in a separate log file"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:18
+msgid "Welcome to Qode Optimizer"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:19
+msgid "It's time to speed up your website with optimized images"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:30
+msgid "Image Max Width (px)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:31
+msgid "Set max width for uploaded images"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:39
+msgid "Image Max Height (px)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:40
+msgid "Set max height for uploaded images"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:45
+#: inc/general/dashboard/admin/optimization-options.php:85
+#: inc/general/dashboard/admin/optimization-options.php:125
+msgid "No Compression"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:46
+#: inc/general/dashboard/admin/optimization-options.php:86
+#: inc/general/dashboard/admin/optimization-options.php:126
+msgid "Lossy (Imagick/GD Lib)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:50
+#: inc/general/dashboard/admin/optimization-options.php:90
+msgid "Lossless (CL Tools)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:54
+#: inc/general/dashboard/admin/optimization-options.php:94
+#: inc/general/dashboard/admin/optimization-options.php:130
+msgid "Lossy (CL Tools)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:61
+msgid "JPG Compression Method"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:71
+msgid "JPG Image Quality After Compression (Lossy)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:72
+msgid "Set quality for JPG images after compression in format [1-100], 1=min quality (max compression), 100=max quality (min compression). The default quality is set to 75, offering an optimal balance between image clarity and file compression"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:101
+msgid "PNG Compression Method"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:111
+msgid "PNG Image Quality After Compression (Lossy)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:112
+msgid "Set quality for PNG images after compression in format [1-100], 1=min quality (max compression), 100=max quality (min compression). The default quality is set to 75, offering an optimal balance between image clarity and file compression"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:137
+msgid "GIF Compression Method"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:147
+msgid "GIF Image Quality After Compression (Lossy)"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:148
+msgid "Set quality for GIF images after compression in format [1-100], 1=min quality (max compression), 100=max quality (min compression). The default quality is set to 75, offering an optimal balance between image clarity and file compression"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:164
+msgid "Remove Image Metadata"
+msgstr ""
+
+#: inc/general/dashboard/admin/optimization-options.php:165
+msgid "Enable to remove metadata from images in optimization process"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:20
+msgid "Enable WebP Image Creation"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:21
+msgid "Enable to perform additional WebP image creation as a part of any type of optimization process"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:27
+msgid "Native"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:34
+msgid "CL Tools"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:41
+msgid "WebP Conversion Method"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:51
+msgid "WebP Image Quality After Compression"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:52
+msgid "Set quality for converted WebP images after compression in format [1-100], 1=min quality (max compression), 100=max quality (min compression). The default quality is set to 75, offering an optimal balance between image clarity and file compression"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:60
+msgid "Insert Rewriting Rules"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:61
+msgid "Insert/remove rewriting rules for delivering WebP images on Apache/LiteSpeed web servers"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:70
+msgid "Picture WebP Rewriting"
+msgstr ""
+
+#: inc/general/dashboard/admin/webp-options.php:71
+msgid "Apply a JavaScript-free rewriting method using picture tags"
+msgstr ""
