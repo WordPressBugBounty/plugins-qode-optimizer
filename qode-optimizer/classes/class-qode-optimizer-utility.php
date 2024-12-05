@@ -540,7 +540,7 @@ class Qode_Optimizer_Utility {
 	public function all_webp_images_delete() {
 		$filesystem = new Qode_Optimizer_Filesystem();
 
-		$all_webp_image_paths = $filesystem->scan_directory( get_home_path(), array( 'image/webp' ) );
+		$all_webp_image_paths = $filesystem->scan_directory( qode_optimizer_get_home_path(), array( 'image/webp' ) );
 
 		if ( ! empty( $all_webp_image_paths ) ) {
 			foreach ( $all_webp_image_paths as $path ) {

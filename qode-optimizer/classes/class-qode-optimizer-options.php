@@ -597,7 +597,7 @@ class Qode_Optimizer_Options {
 		$folders_array               = '' !== $optimize_additional_folders ? explode( PHP_EOL, $optimize_additional_folders ) : array();
 
 		if ( ! empty( $folders_array ) ) {
-			$root = realpath( get_home_path() );
+			$root = realpath( qode_optimizer_get_home_path() );
 			return array_filter(
 				$folders_array,
 				function ( $item ) use ( $root ) {
@@ -625,7 +625,7 @@ class Qode_Optimizer_Options {
 		$folders_array           = '' !== $optimize_exclude_images ? explode( PHP_EOL, $optimize_exclude_images ) : array();
 
 		if ( ! empty( $folders_array ) ) {
-			$root = realpath( get_home_path() );
+			$root = realpath( qode_optimizer_get_home_path() );
 			return array_filter(
 				$folders_array,
 				function ( $item ) use ( $root ) {

@@ -27,7 +27,7 @@ if ( ! function_exists( 'qode_optimizer_add_advanced_options' ) ) {
 			);
 
 			// translators: %s - filesystem path to the root of the WordPress installation.
-			$description = sprintf( esc_html__( 'Include folder paths that contain images that should be optimized. Note that each line should contain 1 full filesystem path, and not the URL (e.g. filesystem path to the root of your WordPress installation is %s)', 'qode-optimizer' ), realpath( get_home_path() ) );
+			$description = sprintf( esc_html__( 'Include folder paths that contain images that should be optimized. Note that each line should contain 1 full filesystem path, and not the URL (e.g. filesystem path to the root of your WordPress installation is %s)', 'qode-optimizer' ), realpath( qode_optimizer_get_home_path() ) );
 
 			$page->add_field_element(
 				array(
@@ -42,7 +42,7 @@ if ( ! function_exists( 'qode_optimizer_add_advanced_options' ) ) {
 			);
 
 			// translators: %s - filesystem path to the root of the WordPress installation.
-			$description = sprintf( esc_html__( 'Include paths for images that shouldn\'t be optimized. Note that each line should contain 1 full filesystem path, and not the URL (e.g. filesystem path to the root of your WordPress installation is %s)', 'qode-optimizer' ), realpath( get_home_path() ) );
+			$description = sprintf( esc_html__( 'Include paths for images that shouldn\'t be optimized. Note that each line should contain 1 full filesystem path, and not the URL (e.g. filesystem path to the root of your WordPress installation is %s)', 'qode-optimizer' ), realpath( qode_optimizer_get_home_path() ) );
 
 			$page->add_field_element(
 				array(

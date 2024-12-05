@@ -441,7 +441,7 @@ class Qode_Optimizer_Filesystem {
 		$output_files = array();
 
 		$directory = realpath( $directory );
-		$root      = realpath( get_home_path() );
+		$root      = realpath( qode_optimizer_get_home_path() );
 		if (
 			empty( $directory ) ||
 			false === strpos( $directory, $root )

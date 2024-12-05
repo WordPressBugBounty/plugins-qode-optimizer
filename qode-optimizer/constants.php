@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'QODE_OPTIMIZER_VERSION', '1.0.3' );
+define( 'QODE_OPTIMIZER_VERSION', '1.0.4' );
 // Use the __DIR__ constant instead of calling dirname(__FILE__) (PHP >= 5.3).
 define( 'QODE_OPTIMIZER_ABS_PATH', __DIR__ );
 define( 'QODE_OPTIMIZER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) );

@@ -21,7 +21,7 @@ if ( ! function_exists( 'qode_optimizer_get_htaccess_path' ) ) {
 	 * @return string .htaccess file path
 	 */
 	function qode_optimizer_get_htaccess_path() {
-		$htaccess_folder = get_home_path();
+		$htaccess_folder = qode_optimizer_get_home_path();
 		$htaccess_file   = $htaccess_folder . '.htaccess';
 
 		$home     = get_option( 'home' );

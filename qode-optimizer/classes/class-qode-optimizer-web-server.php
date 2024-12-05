@@ -83,7 +83,7 @@ abstract class Qode_Optimizer_Web_Server {
 	 * @return string .htaccess file path
 	 */
 	public function get_htaccess_path() {
-		$htaccess_folder = get_home_path();
+		$htaccess_folder = qode_optimizer_get_home_path();
 		$htaccess_file   = $htaccess_folder . '.htaccess';
 
 		$home     = get_option( 'home' );

@@ -459,3 +459,20 @@ if ( ! function_exists( 'qode_optimizer_get_admin_options_map_position' ) ) {
 		return apply_filters( 'qode_optimizer_filter_admin_options_map_position', $position, $map );
 	}
 }
+
+if ( ! function_exists( 'qode_optimizer_get_home_path' ) ) {
+	/**
+	 * Returns home path of the project
+	 *
+	 * @return string
+	 */
+	function qode_optimizer_get_home_path() {
+		if ( function_exists( 'get_home_path' ) ) {
+			return get_home_path();
+		} elseif ( defined( 'ABSPATH' ) ) {
+			return ABSPATH;
+		} else {
+			return '';
+		}
+	}
+}
