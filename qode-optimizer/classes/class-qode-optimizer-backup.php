@@ -146,7 +146,7 @@ class Qode_Optimizer_Backup {
 	 */
 	public function create_backup( $image, $move_original = false ) {
 		if ( $image instanceof Qode_Optimizer_Image ) {
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			$backup_folder = pathinfo( $image->file, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR . $this->get_backup_folder_name();
 
@@ -223,7 +223,7 @@ class Qode_Optimizer_Backup {
 	 */
 	public function create_folders_backup( $image, $move_original = false ) {
 		if ( $image instanceof Qode_Optimizer_Image ) {
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			$backup_folder = pathinfo( $image->file, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR . $this->get_backup_folder_name();
 
@@ -416,7 +416,7 @@ class Qode_Optimizer_Backup {
 
 			$qo_db->init_charset();
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			foreach ( $backup_data['backup_paths'] as $index => $backup_path ) {
 				if (
@@ -482,7 +482,7 @@ class Qode_Optimizer_Backup {
 
 			$qo_db->init_charset();
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			foreach ( $backup_data['backup_paths'] as $index => $backup_path ) {
 				if (
@@ -551,7 +551,7 @@ class Qode_Optimizer_Backup {
 
 				$qo_db->init_charset();
 
-				$filesystem = new Qode_Optimizer_Filesystem();
+				$filesystem = new Qode_Optimizer_Filesystem( true );
 
 				foreach ( $backup_data['backup_paths'] as $backup_path ) {
 					if ( $filesystem->is_file( $backup_path ) ) {
@@ -599,7 +599,7 @@ class Qode_Optimizer_Backup {
 
 				$qo_db->init_charset();
 
-				$filesystem = new Qode_Optimizer_Filesystem();
+				$filesystem = new Qode_Optimizer_Filesystem( true );
 
 				foreach ( $backup_data['backup_paths'] as $backup_path ) {
 					if ( $filesystem->is_file( $backup_path ) ) {

@@ -65,7 +65,7 @@ abstract class Qode_Optimizer_Web_Server {
 	public function check_htaccess_availability() {
 		$htaccess_file = $this->get_htaccess_path();
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if (
 			$filesystem->is_file( $htaccess_file ) &&

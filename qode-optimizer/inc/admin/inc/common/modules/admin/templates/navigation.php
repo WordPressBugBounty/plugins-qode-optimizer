@@ -71,7 +71,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php
 								if ( isset( $nav_item['icon'] ) ) {
 									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									echo qode_optimizer_framework_wp_kses_html( 'svg', $nav_item['icon'] );
+									echo wp_kses_post( $nav_item['icon'] );
 								}
 								?>
 								<span><?php echo esc_html( $nav_item['name'] ); ?></span>

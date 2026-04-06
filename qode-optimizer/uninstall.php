@@ -14,6 +14,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;
 }
 
+require_once __DIR__ . '/helpers/helper.php';
+
 if ( ! function_exists( 'qode_optimizer_get_htaccess_path' ) ) {
 	/**
 	 * Get .htaccess path

@@ -135,25 +135,8 @@ class Qode_Optimizer_Framework_Options {
 		wp_enqueue_script( 'perfect-scrollbar', QODE_OPTIMIZER_ADMIN_URL_PATH . '/inc/common/assets/plugins/perfect-scrollbar/perfect-scrollbar.min.js', array(), '1.5.3', true );
 
 		// Register 3rd party plugins scripts.
-		wp_register_script( 'wp-color-picker-alpha', QODE_OPTIMIZER_ADMIN_URL_PATH . '/inc/common/assets/plugins/wp-color-picker-alpha/wp-color-picker-alpha.min.js', array( 'wp-color-picker' ), '3.0.3', true );
-
-		// Compatibility with WP 5.5 => wpColorPickerL10n are not loaded by WP core anymore, but we need them for the custom wp-color-picker-alpha.js.
-		global $wp_version;
-		if ( version_compare( $wp_version, '5.5', '>=' ) ) {
-			wp_localize_script(
-				'wp-color-picker-alpha',
-				'wpColorPickerL10n',
-				array(
-					'clear'            => esc_html__( 'Clear', 'qode-optimizer' ),
-					'clearAriaLabel'   => esc_html__( 'Clear color', 'qode-optimizer' ),
-					'defaultString'    => esc_html__( 'Default', 'qode-optimizer' ),
-					'defaultAriaLabel' => esc_html__( 'Select default color', 'qode-optimizer' ),
-					'pick'             => esc_html__( 'Select Color', 'qode-optimizer' ),
-					'defaultLabel'     => esc_html__( 'Color value', 'qode-optimizer' ),
-				)
-			);
-		}
-
+		wp_register_script( 'wp-color-picker-alpha', QODE_OPTIMIZER_ADMIN_URL_PATH . '/inc/common/assets/plugins/wp-color-picker-alpha/wp-color-picker-alpha.min.js', array( 'wp-color-picker' ), '3.0.4', true );
+		
 		// Main dashboard js scripts.
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters
 		wp_enqueue_script( 'qode-optimizer-framework-script', QODE_OPTIMIZER_ADMIN_URL_PATH . '/inc/common/assets/js/common.min.js', array( 'jquery' ), false, true );

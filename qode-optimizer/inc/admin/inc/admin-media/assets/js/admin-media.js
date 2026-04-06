@@ -259,7 +259,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_action_should_be_converted',
+						action: 'qode_optimizer_media_action_should_be_converted',
 						options: options,
 					},
 				}
@@ -278,7 +278,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_action_optimize_process',
+						action: 'qode_optimizer_media_action_optimize_process',
 						options: options,
 					},
 					success: function ( data ) {
@@ -457,7 +457,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_action_restore',
+						action: 'qode_optimizer_media_action_restore',
 						options: options,
 					},
 					success: function ( data ) {
@@ -502,7 +502,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_action_regenerate',
+						action: 'qode_optimizer_media_action_regenerate',
 						options: options,
 					},
 					success: function ( data ) {
@@ -536,7 +536,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_action_add_watermark',
+						action: 'qode_optimizer_media_action_add_watermark',
 						options: options,
 					},
 					success: function ( data ) {
@@ -587,7 +587,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_action_recover',
+						action: 'qode_optimizer_media_action_recover',
 						options: options,
 					},
 					success: function ( data ) {
@@ -623,12 +623,18 @@
 		},
 
 		ajaxInitButtonsAndInfoHtml: function ( options ) {
+			var $customNonceContainer = $( '#qode-optimizer-custom-nonce-container' );
+
+			if ( $customNonceContainer.length ) {
+				options.qo_nonce = $customNonceContainer.data( 'qo-nonce' );
+			}
+
 			return $.ajax(
 				{
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_init_action_buttons_and_info',
+						action: 'qode_optimizer_media_init_action_buttons_and_info',
 						options: options,
 					},
 				}
@@ -642,7 +648,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'media_include_action_buttons',
+						action: 'qode_optimizer_media_include_action_buttons',
 						options: options,
 					},
 					success: function ( data ) {

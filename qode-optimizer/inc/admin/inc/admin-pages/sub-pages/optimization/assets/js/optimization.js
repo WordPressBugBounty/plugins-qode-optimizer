@@ -208,7 +208,7 @@
 					async: false,
 					url: ajaxurl,
 					data: {
-						action: 'options_action_get_convert_options',
+						action: 'qode_optimizer_options_action_get_convert_options',
 						options: options,
 					},
 					success: function ( data ) {
@@ -234,7 +234,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'bulk_action_optimize_and_webp',
+						action: 'qode_optimizer_bulk_action_optimize_and_webp',
 						options: options,
 					},
 					success: function ( data ) {
@@ -450,7 +450,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'bulk_action_folders_optimize_and_webp',
+						action: 'qode_optimizer_bulk_action_folders_optimize_and_webp',
 						options: options,
 					},
 					success: function ( data ) {

@@ -45,8 +45,9 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 		if ( array_key_exists( 'compression_quality', $params ) ) {
 			$this->compression_quality = Qode_Optimizer_Utility::correct_integer( $params['compression_quality'] );
 		} elseif ( $this->additional_compression ) {
-			$this->compression_quality = ! is_null( Qode_Optimizer_Options::get_option( 'additional_jpg_compression_quality' ) ) ?
-				Qode_Optimizer_Options::get_option( 'additional_jpg_compression_quality' ) : 75;
+			if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+				$this->compression_quality = Qode_OptimizerPremium_Options::get_additional_jpg_compression_quality();
+			}
 		} else {
 			$this->compression_quality = ! is_null( Qode_Optimizer_Options::get_option( 'jpg_compression_quality' ) ) ?
 				Qode_Optimizer_Options::get_option( 'jpg_compression_quality' ) : 75;
@@ -99,7 +100,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 			$gd_image instanceof GdImage
 		) {
 			imagejpeg( $gd_image, $file );
-			imagedestroy( $gd_image );
+            unset( $gd_image );
 
 			return true;
 		}
@@ -120,7 +121,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 			$gd_image instanceof GdImage
 		) {
 			imagejpeg( $gd_image, $this->file );
-			imagedestroy( $gd_image );
+            unset( $gd_image );
 
 			return true;
 		}
@@ -141,7 +142,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 	 * @return int|bool
 	 */
 	public function get_orientation() {
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 		$exif_data  = function_exists( 'exif_read_data' ) && $filesystem->is_readable( $this->file ) ? exif_read_data( $this->file ) : '';
 
 		if ( ! empty( $exif_data ) ) {
@@ -225,8 +226,10 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 	 * @return array
 	 */
 	public function get_additional_compression_method_from_options() {
-		$compression_method = ! is_null( Qode_Optimizer_Options::get_option( 'additional_jpg_compression_method' ) ) ?
-			Qode_Optimizer_Options::get_option( 'additional_jpg_compression_method' ) : '';
+		$compression_method = '';
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			$compression_method = Qode_OptimizerPremium_Options::get_additional_jpg_compression_method();
+		}
 
 		if ( 'none' === $compression_method ) {
 			return array();
@@ -258,7 +261,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 			return false;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$image->setImageFormat( 'JPG' );
 
@@ -326,7 +329,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 		}
 
 		imagejpeg( $image, $compressed_file, $this->compression_quality );
-		imagedestroy( $image );
+        unset( $image );
 
 		$system_log->add_log( 'Image was successfully compressed using GD' );
 
@@ -343,7 +346,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 	public function lossless_clt_compress( $compressed_file ) {
 		$system_log = Qode_Optimizer_Log::get_instance();
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if ( $filesystem->copy_file( $this->file, $compressed_file ) ) {
 			$success = false;
@@ -368,7 +371,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 	public function lossy_clt_compress( $compressed_file ) {
 		$system_log = Qode_Optimizer_Log::get_instance();
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if ( $filesystem->copy_file( $this->file, $compressed_file ) ) {
 			$success = false;
@@ -397,7 +400,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 			// Progressive optimization.
 			$system_log->add_log( 'Attempting to compress the image using Jpegtran' );
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			if ( $filesystem->is_file( $compressed_file ) ) {
 
@@ -466,7 +469,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 		if ( Qode_Optimizer_Support::is_tool_working( 'jpegoptim' ) ) {
 			$system_log->add_log( 'Attempting to compress the image using Jpegoptim' );
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			if ( $filesystem->is_file( $compressed_file ) ) {
 
@@ -526,121 +529,6 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 	}
 
 	/**********************************************
-	 * CONVERSION (OPTIONAL)
-	 *
-	 * 3rd step in optimizing images
-	 *********************************************/
-
-	/**
-	 * Get conversion params
-	 *
-	 * @return array
-	 */
-	protected function get_conversion_params() {
-		return array();
-	}
-
-	/**
-	 * Gmagick image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	protected function gmagick_convert_by_mime_type( $new_file, $conversion_params ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to convert the image using Gmagick' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if ( Qode_Optimizer_Support::get_system_param( 'gmagick_support_exists' ) ) {
-			try {
-				$gmagick = new Gmagick( $this->file );
-				$gmagick->stripimage();
-				$gmagick->setimageformat( 'PNG' );
-				$gmagick->writeimage( $new_file );
-			} catch ( Exception $gmagick_error ) {
-				// Gmagick error report.
-				$system_log->add_log( 'Some error occurred while converting image using Gmagick' );
-			}
-
-			$system_log->add_log( 'Image was successfully converted using Gmagick' );
-
-			return $filesystem->filesize( $new_file );
-		}
-
-		$system_log->add_log( 'No conversion was made using Gmagick' );
-
-		return 0;
-	}
-
-	/**
-	 * Imagick image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	protected function imagick_convert_by_mime_type( $new_file, $conversion_params ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to convert the image using Imagick' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if ( Qode_Optimizer_Support::get_system_param( 'imagick_support_exists' ) ) {
-			try {
-				$imagick = new Imagick( $this->file );
-				$imagick->stripImage();
-				$imagick->setImageFormat( 'PNG' );
-				$imagick->writeImage( $new_file );
-			} catch ( Exception $imagick_error ) {
-				// Imagick error report.
-				$system_log->add_log( 'Some error occurred while converting image using Imagick' );
-			}
-
-			$system_log->add_log( 'Image was successfully converted using Imagick' );
-
-			return $filesystem->filesize( $new_file );
-		}
-
-		$system_log->add_log( 'No conversion was made using Imagick' );
-
-		return 0;
-	}
-
-	/**
-	 * GD image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	protected function gd_convert_by_mime_type( $new_file, $conversion_params ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to convert the image using GD' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if ( Qode_Optimizer_Support::get_system_param( 'gd_support_exists' ) ) {
-			imagepng( imagecreatefromjpeg( $this->file ), $new_file );
-
-			$system_log->add_log( 'Image was successfully converted using GD' );
-
-			return $filesystem->filesize( $new_file );
-		}
-
-		$system_log->add_log( 'No conversion was made using GD' );
-
-		return 0;
-	}
-
-	/**********************************************
 	 * WEBP CREATION (OPTIONAL)
 	 *
 	 * 5th step in optimizing images
@@ -667,7 +555,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 			return false;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$image->setImageFormat( 'WEBP' );
 
@@ -736,7 +624,7 @@ class Qode_Optimizer_Jpeg extends Qode_Optimizer_Image {
 		}
 
 		imagewebp( $image, $webp_file, $this->webp_quality );
-		imagedestroy( $image );
+        unset( $image );
 
 		$system_log->add_log( 'WebP image was successfully created using GD' );
 

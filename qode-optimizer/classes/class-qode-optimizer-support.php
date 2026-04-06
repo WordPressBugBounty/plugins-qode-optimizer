@@ -364,7 +364,7 @@ class Qode_Optimizer_Support {
 				break;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		foreach ( $cl_tool_paths as $path ) {
 			if ( $filesystem->is_file( $path ) ) {

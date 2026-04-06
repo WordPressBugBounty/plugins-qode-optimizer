@@ -18,11 +18,11 @@ class Qode_Optimizer_Utility {
 	public function init() {
 		// Ajax calls.
 		if ( Qode_Optimizer_User::is_admin() ) {
-			add_action( 'wp_ajax_utility_action_clean_up_optimization_history', array( $this, 'handle_optimization_history_cleanup' ) );
-			add_action( 'wp_ajax_utility_action_resolve_optimization_history_issues', array( $this, 'handle_optimization_history_issues_resolve' ) );
-			add_action( 'wp_ajax_utility_action_delete_optimization_history', array( $this, 'handle_optimization_history_delete' ) );
-			add_action( 'wp_ajax_utility_action_delete_webp_images', array( $this, 'handle_webp_images_delete' ) );
-			add_action( 'wp_ajax_utility_action_delete_all_webp_images', array( $this, 'handle_all_webp_images_delete' ) );
+			add_action( 'wp_ajax_qode_optimizer_utility_action_clean_up_optimization_history', array( $this, 'handle_optimization_history_cleanup', ) );
+			add_action( 'wp_ajax_qode_optimizer_utility_action_resolve_optimization_history_issues', array( $this, 'handle_optimization_history_issues_resolve', ) );
+			add_action( 'wp_ajax_qode_optimizer_utility_action_delete_optimization_history', array( $this, 'handle_optimization_history_delete', ) );
+			add_action( 'wp_ajax_qode_optimizer_utility_action_delete_webp_images', array( $this, 'handle_webp_images_delete' ) );
+			add_action( 'wp_ajax_qode_optimizer_utility_action_delete_all_webp_images', array( $this, 'handle_all_webp_images_delete', ) );
 		}
 	}
 
@@ -538,7 +538,7 @@ class Qode_Optimizer_Utility {
 	 * Deletes all WebP images, created by system and all others currently located on server
 	 */
 	public function all_webp_images_delete() {
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$all_webp_image_paths = $filesystem->scan_directory( qode_optimizer_get_home_path(), array( 'image/webp' ) );
 
@@ -602,10 +602,10 @@ class Qode_Optimizer_Utility {
 	 */
 	public static function is_iterable( $variable ) {
 		return ! empty( $variable ) &&
-			(
-				is_array( $variable ) ||
-				$variable instanceof Traversable
-			);
+			   (
+				   is_array( $variable ) ||
+				   $variable instanceof Traversable
+			   );
 	}
 
 	/**
@@ -800,5 +800,143 @@ class Qode_Optimizer_Utility {
 		}
 
 		return $actual_value;
+	}
+
+	/**
+	 * Checks for valid RGB|RGBA color
+	 *
+	 * @param $color
+	 *
+	 * @return bool
+	 */
+	public static function is_rgba_color( $color ) {
+		$pattern = '/^rgba?\\(\\s*(?:\\d{1,3}\\s*,\\s*){2}\\d{1,3}(?:\\s*,\\s*(?:\\d*\\.?\\d+))?\\s*\\)$/i';
+
+		if ( preg_match( $pattern, $color, $matches ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks for valid HEX color
+	 *
+	 * @param $color
+	 *
+	 * @return bool
+	 */
+	public static function is_hex_color( $color ) {
+		$pattern = '/^#([a-fA-F0-9]{3}){1,2}$/i';
+
+		if ( preg_match( $pattern, $color, $matches ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Extracts red/green/blue color segment from rgba color code
+	 *
+	 * @param $rgba_color
+	 *
+	 * @return array|bool
+	 */
+	public static function rgb_from_rgba( $rgba_color ) {
+		if ( preg_match( '/rgba\\((\\d+),(\\d+),(\\d+),([\\d.]+)\\)/', $rgba_color, $matches ) ) {
+			return [
+				'red'   => (int) $matches[1],
+				'green' => (int) $matches[2],
+				'blue'  => (int) $matches[3],
+				'alpha' => (float) $matches[4],
+			];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Expands 3-digit hex color codes to full 6-digit ones
+	 *
+	 * @param $hex_color
+	 *
+	 * @return bool|string
+	 */
+	public static function hex_color_3_to_6_digit_code( $hex_color ) {
+		if ( strlen( $hex_color ) == 3 ) {
+			$hex_color = str_repeat( substr( $hex_color, 0, 1 ), 2 ) .
+						 str_repeat( substr( $hex_color, 1, 1 ), 2 ) .
+						 str_repeat( substr( $hex_color, 2, 1 ), 2 );
+		}
+
+		if ( strlen( $hex_color ) == 6 ) {
+			return $hex_color;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Extracts red/green/blue color segment from hex color code
+	 *
+	 * @param $hex_color
+	 *
+	 * @return array|bool
+	 */
+	public static function rgb_from_hex( $hex_color ) {
+		$hex_color = ltrim( $hex_color, '#' );
+
+		$hex_color = static::hex_color_3_to_6_digit_code( $hex_color );
+
+		if ( $hex_color ) {
+			list( $red_code, $green_code, $lue_codeb ) = sscanf( $hex_color, '%02x%02x%02x' );
+
+			return [
+				'red'   => $red_code,
+				'green' => $green_code,
+				'blue'  => $lue_codeb,
+			];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Download essential files in strict and safe way
+	 *
+	 * @param $option
+	 *
+	 * @return bool
+	 */
+	public static function fetch_remote_file( $option ) {
+		$url = '';
+
+		switch ( $option ) {
+			case 'test':
+				$url = 'https://export.qodethemes.com/qode-plugins/qode-list-of-plugins.txt';
+				break;
+			default:
+				break;
+		}
+
+		if ( empty( $url ) ) {
+			return false;
+		}
+
+		$response = wp_remote_get( $url );
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		$file_body = wp_remote_retrieve_body( $response );
+
+		$local_file_path = QODE_OPTIMIZER_TOOLS_FOLDER_PATH . DIRECTORY_SEPARATOR . 'filename.txt';
+
+		$filesystem = new Qode_Optimizer_Filesystem( true );
+		$filesystem->put_contents( $local_file_path, $file_body, FS_CHMOD_FILE );
+
+		return true;
 	}
 }

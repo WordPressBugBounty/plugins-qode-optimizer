@@ -124,9 +124,20 @@ class Qode_Optimizer_Framework_Options_Admin extends Qode_Optimizer_Framework_Op
 
 		do_action( 'qode_optimizer_action_framework_before_options_registered', $this->get_options_name() );
 
-		register_setting( $this->get_menu_label(), $this->get_options_name() );
+		register_setting(
+			$this->get_menu_label(),
+			$this->get_options_name(),
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_register_setting' ),
+			)
+		);
 
 		do_action( 'qode_optimizer_action_framework_after_options_registered', $this->get_options_name() );
+	}
+
+	public function sanitize_register_setting( $value ) {
+		return qode_optimizer_framework_map_deep_sanitize( $value );
 	}
 
 	public function save_options() {

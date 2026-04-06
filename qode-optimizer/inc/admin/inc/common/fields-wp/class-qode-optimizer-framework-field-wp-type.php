@@ -78,7 +78,7 @@ abstract class Qode_Optimizer_Framework_Field_WP_Type {
 				<div class="qodef-input-holder qodef-field-content">
 					<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo qode_optimizer_framework_wp_kses_html( 'html', $this->render_field() );
+					echo wp_kses_post(  $this->render_field() );
 					?>
 				</div>
 				<p class="description">
@@ -95,7 +95,7 @@ abstract class Qode_Optimizer_Framework_Field_WP_Type {
 				<td class="qodef-input-holder qodef-field-content">
 					<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo qode_optimizer_framework_wp_kses_html( 'html', $this->render_field() );
+					echo wp_kses_post(  $this->render_field() );
 					?>
 					<p class="description">
 						<?php echo esc_html( $this->description ); ?>

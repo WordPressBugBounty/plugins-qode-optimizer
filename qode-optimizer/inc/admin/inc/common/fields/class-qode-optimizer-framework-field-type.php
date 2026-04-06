@@ -135,7 +135,7 @@ abstract class Qode_Optimizer_Framework_Field_Type {
 							<p class="qodef-description qodef-field-description">
 								<?php
 								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								echo qode_optimizer_framework_wp_kses_html( 'description', $this->description );
+								echo wp_kses_post( $this->description );
 								?>
 							</p>
 						<?php } ?>

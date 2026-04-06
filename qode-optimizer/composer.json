@@ -1,5 +1,5 @@
 {
     "require": {
-        "fileeye/pel": "^0.10.0"
+        "fileeye/pel": "^0.12.0"
     }
 }

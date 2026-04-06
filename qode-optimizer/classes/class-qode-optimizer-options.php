@@ -126,69 +126,8 @@ class Qode_Optimizer_Options {
 
 		// Ajax calls.
 		if ( Qode_Optimizer_User::is_admin() ) {
-			add_action( 'wp_ajax_options_action_get_convert_options', array( 'Qode_Optimizer_Options', 'get_convert_options_ajax' ) );
-			add_action( 'wp_ajax_options_action_ajax_option_add_description', array( 'Qode_Optimizer_Options', 'handle_ajax_option_add_description' ) );
-			add_action( 'wp_ajax_options_action_ajax_option_action', array( 'Qode_Optimizer_Options', 'handle_ajax_option_action' ) );
-		}
-	}
-
-	/**
-	 * Gets admin options set for conversion
-	 *
-	 * @return array
-	 */
-	public static function get_convert_options() {
-
-		$options = array();
-
-		foreach (
-			array(
-				'image/jpeg' => 'enable_jpg_to_png_conversion',
-				'image/png'  => 'enable_png_to_jpg_conversion',
-				'image/gif'  => 'enable_gif_to_png_conversion',
-			) as $mime_type => $option
-		) {
-			$options[ $mime_type ] = static::get_option( $option );
-		}
-
-		return $options;
-	}
-
-	/**
-	 * Ajax - Gets admin options set for conversion
-	 */
-	public static function get_convert_options_ajax() {
-
-		if ( isset( $_POST ) && ! empty( $_POST ) ) {
-
-			if (
-				empty( $_POST['options']['qo_nonce'] ) ||
-				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
-			) {
-				if ( ! wp_doing_ajax() ) {
-					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-				}
-
-				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
-			}
-
-			$options = array();
-
-			foreach (
-				array(
-					'enable_jpg_to_png_conversion',
-					'enable_png_to_jpg_conversion',
-					'enable_gif_to_png_conversion',
-				) as $mime_type => $option
-			) {
-				$options[ $mime_type ] = static::get_option( $option );
-			}
-
-			if ( ! empty( $options ) ) {
-				qode_optimizer_get_ajax_status( 'success', esc_html__( 'Success', 'qode-optimizer' ), $options );
-			} else {
-				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Fail', 'qode-optimizer' ), $options );
-			}
+			add_action( 'wp_ajax_qode_optimizer_options_action_ajax_option_add_description', array( 'Qode_Optimizer_Options', 'handle_ajax_option_add_description' ) );
+			add_action( 'wp_ajax_qode_optimizer_options_action_ajax_option_action', array( 'Qode_Optimizer_Options', 'handle_ajax_option_action' ) );
 		}
 	}
 
@@ -220,12 +159,14 @@ class Qode_Optimizer_Options {
 				switch ( $option_name ) {
 					case 'qodef_insert_rewriting_rules':
 						$web_server     = Qode_Optimizer_Web_Server_Factory::create();
-						$htaccess_rules = $web_server ? $web_server->get_htaccess_rules() : '';
+						$htaccess_rules = $web_server->get_htaccess_rules();
 
 						if ( ! empty( $htaccess_rules ) ) {
 
+							$htaccess_title = $web_server::WEB_SERVER_TYPE . ( 'Other' === $web_server::WEB_SERVER_TYPE ? ' (Apache like)' : '' ) . ' web server';
+
 							$output = array(
-								'title'       => esc_html( $web_server::WEB_SERVER_TYPE . ' web server' ),
+								'title'       => esc_html( $htaccess_title ),
 								'description' => $htaccess_rules,
 							);
 
@@ -272,11 +213,8 @@ class Qode_Optimizer_Options {
 				switch ( $option_name ) {
 					case 'qodef_insert_rewriting_rules':
 						$web_server = Qode_Optimizer_Web_Server_Factory::create();
-						if (
-							! $web_server ||
-							! $web_server->check_htaccess_availability()
-						) {
-							qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Htaccess not available', 'qode-optimizer' ) );
+						if ( ! $web_server->check_htaccess_availability() ) {
+							qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Htaccess file not present or not writable', 'qode-optimizer' ) );
 						}
 
 						if ( ! in_array( $option_value, array( 'yes', 'no' ), true ) ) {

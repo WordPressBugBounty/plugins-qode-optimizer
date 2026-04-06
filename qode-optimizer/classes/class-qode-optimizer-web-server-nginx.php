@@ -24,7 +24,22 @@ class Qode_Optimizer_Web_Server_Nginx extends Qode_Optimizer_Web_Server {
 	 *
 	 * @var array $htaccess_rules
 	 */
-	protected $htaccess_rules = array();
+	protected $htaccess_rules = array(
+		'<IfModule mod_rewrite.c>',
+		'RewriteEngine On',
+		'RewriteCond %{HTTP_ACCEPT} image/webp',
+		'RewriteCond %{REQUEST_FILENAME} (.*)\.(jpe?g|png|gif)$',
+		'RewriteCond %{REQUEST_FILENAME}.webp -f',
+		'RewriteCond %{QUERY_STRING} !type=original',
+		'RewriteRule (.+)\.(jpe?g|png|gif)$ %{REQUEST_URI}.webp [T=image/webp,L]',
+		'</IfModule>',
+		'<IfModule mod_headers.c>',
+		'<FilesMatch "\.(jpe?g|png|gif)$">',
+		'Header append Vary Accept',
+		'</FilesMatch>',
+		'</IfModule>',
+		'AddType image/webp .webp',
+	);
 
 	/**
 	 * Alternative htaccess rules

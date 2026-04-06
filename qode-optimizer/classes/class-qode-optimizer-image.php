@@ -173,13 +173,6 @@ abstract class Qode_Optimizer_Image {
 	public $image_metadata_remove = 'no';
 
 	/**
-	 * Delete original images
-	 *
-	 * @var string $delete_original_images
-	 */
-	public $delete_original_images = 'no';
-
-	/**
 	 * Image max width
 	 *
 	 * @var int $image_max_width
@@ -192,13 +185,6 @@ abstract class Qode_Optimizer_Image {
 	 * @var int $image_max_height
 	 */
 	public $image_max_height = 0;
-
-	/**
-	 * Enable automatic image optimization
-	 *
-	 * @var string $enable_automatic_image_optimization
-	 */
-	public $enable_automatic_image_optimization = 'no';
 
 	/**
 	 * Is file converted
@@ -287,14 +273,10 @@ abstract class Qode_Optimizer_Image {
 			Qode_Optimizer_Options::get_option( 'webp_quality' ) : 75;
 		$this->image_metadata_remove               = ! is_null( Qode_Optimizer_Options::get_option( 'image_metadata_remove' ) ) ?
 			Qode_Optimizer_Options::get_option( 'image_metadata_remove' ) : 'no';
-		$this->delete_original_images              = ! is_null( Qode_Optimizer_Options::get_option( 'delete_original_images' ) ) ?
-			Qode_Optimizer_Options::get_option( 'delete_original_images' ) : 'no';
 		$this->image_max_width                     = ! is_null( Qode_Optimizer_Options::get_option( 'image_max_width' ) ) ?
 			Qode_Optimizer_Options::get_option( 'image_max_width' ) : 0;
 		$this->image_max_height                    = ! is_null( Qode_Optimizer_Options::get_option( 'image_max_height' ) ) ?
 			Qode_Optimizer_Options::get_option( 'image_max_height' ) : 0;
-		$this->enable_automatic_image_optimization = ! is_null( Qode_Optimizer_Options::get_option( 'enable_automatic_image_optimization' ) ) ?
-			Qode_Optimizer_Options::get_option( 'enable_automatic_image_optimization' ) : 'no';
 	}
 
 	/**
@@ -405,275 +387,6 @@ abstract class Qode_Optimizer_Image {
 				}
 			}
 		}
-
-		return false;
-	}
-
-	/**********************************************
-	 * WATERMARKING (OPTIONAL)
-	 *
-	 * 1st step in optimizing images
-	 *********************************************/
-
-	/**
-	 * Adds supplied watermark to main image and it's thumbs
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function image_and_thumbs_add_watermark() {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$system_log->add_log( '* WATERMARKING OF MAIN IMAGE AND THUMBS', true );
-
-		if ( 'local' === Qode_Optimizer_Options::get_option( 'backup_method' ) ) {
-			$this->create_image_and_thumbs_backup();
-		}
-
-		// Adding Watermark - original image.
-		$system_log->add_log( 'Start the process of watermarking the main image' );
-
-		$main_file_output = $this->add_watermark();
-
-		$system_log->add_log( 'Finish the process of watermarking the main image' );
-
-		$all_files_params   = $output->get_param( 'files' );
-		$all_files_params[] = $main_file_output;
-		$output->set_param( 'files', $all_files_params );
-
-		if ( $main_file_output->get_param( 'success' ) ) {
-			$output->set_param( 'success', true );
-		}
-
-		// Adding Watermark - thumbs.
-		if (
-			$output->get_param( 'success' ) &&
-			$this->has_thumbs()
-		) {
-			$thumbs_files_output = $this->thumbs_add_watermark();
-
-			$all_files_params = $output->get_param( 'files' );
-			$all_files_params = array_merge( $all_files_params, $thumbs_files_output->get_param( 'files' ) );
-			$output->set_param( 'files', $all_files_params );
-
-			$output->set_param( 'success', $thumbs_files_output->get_param( 'success' ) );
-		}
-
-		if ( $output->get_param( 'success' ) ) {
-			$this->save_modifications( 'optimization', $output );
-
-			// Update attachment's metadata.
-			$metadata = $this->metadata_from_output( $this->file, $output );
-			if (
-				$metadata &&
-				Qode_Optimizer_Utility::multiple_array_keys_exist(
-					array(
-						'wp_attached_file',
-						'wp_attachment_metadata',
-					),
-					$metadata
-				)
-			) {
-				static::update_attachment_metadata( $this->id, $metadata['wp_attached_file'], $metadata['wp_attachment_metadata'] );
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Adds uploaded watermark to image thumbs
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function thumbs_add_watermark() {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$all_thumbs = new Qode_Optimizer_Images(
-			array(
-				'files'                  => $this->get_all_image_thumb_path_info(),
-				'additional_compression' => $this->additional_compression,
-			)
-		);
-
-		// Adding Watermark - thumbs.
-		$system_log->add_log( 'Start the process of watermarking the thumb images' );
-
-		$output = $all_thumbs->multiple_add_watermark();
-
-		$system_log->add_log( 'Finish the process of watermarking the thumb images' );
-
-		return $output;
-	}
-
-	/**
-	 * Adds uploaded watermark to folders images
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function folders_image_add_watermark() {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$system_log->add_log( '* WATERMARKING OF THE FOLDERS IMAGE', true );
-
-		if (
-			! Qode_Optimizer_Options::get_option( 'backup_already_made' ) &&
-			'local' === Qode_Optimizer_Options::get_option( 'backup_method' )
-		) {
-			$this->create_folders_image_and_thumbs_backup();
-		}
-
-		// Adding Watermark - original image.
-		$system_log->add_log( 'Start the process of watermarking the folders image' );
-
-		$folders_file_output = $this->add_watermark();
-
-		$system_log->add_log( 'Finish the process of watermarking the folders image' );
-
-		$all_files_params   = $output->get_param( 'files' );
-		$all_files_params[] = $folders_file_output;
-		$output->set_param( 'files', $all_files_params );
-
-		if ( $folders_file_output->get_param( 'success' ) ) {
-			$output->set_param( 'success', true );
-		}
-
-		if ( $output->get_param( 'success' ) ) {
-			$this->save_modifications( 'optimization', $output );
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Adds uploaded watermark to image
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function add_watermark() {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'File to watermark: ' . wp_basename( $this->file ) );
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'file', $this->file );
-		$output->set_param( 'file_basename', wp_basename( $this->file ) );
-		$output->set_param( 'media_size', '' );
-		$output->set_param( 'initial_size_raw', 0 );
-		$output->set_param( 'initial_size', '' );
-		$output->set_param( 'filesize_raw', 0 );
-		$output->set_param( 'filesize', '' );
-		$output->set_param( 'result', esc_html__( 'Unsuccessful', 'qode-optimizer' ) );
-		$output->set_param( 'success', false );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if (
-			! $filesystem->is_file( $this->file ) ||
-			! $filesystem->is_writable( $this->file )
-		) {
-			$output->add_message( 'Some error occurred' );
-
-			return $output;
-		}
-
-		$initial_size = $filesystem->filesize( $this->file );
-		$output->set_param( 'media_size', $this->media_size );
-		$output->set_param( 'initial_size_raw', $initial_size );
-		$output->set_param( 'initial_size', $filesystem->readable_size_format( $initial_size ) );
-		$output->set_param( 'filesize_raw', $initial_size );
-		$output->set_param( 'filesize', $filesystem->readable_size_format( $initial_size ) );
-
-		if ( $this->apply_clt_watermark() ) {
-			$new_size = $filesystem->filesize( $this->file );
-
-			$output->set_param( 'filesize_raw', $new_size );
-			$output->set_param( 'filesize', $filesystem->readable_size_format( $new_size ) );
-			$output->set_param( 'result', $filesystem->readable_filesize_savings( $initial_size, $new_size ) );
-			$output->set_param( 'success', true );
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Apply CL tool watermark
-	 *
-	 * @return bool
-	 */
-	protected function apply_clt_watermark() {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to watermark the image' );
-		$system_log->add_log( 'Using watermarking method(s): Convert' );
-
-		$watermark_image_path = Qode_Optimizer_Support::is_tool_working( 'convert' ) ? Qode_Optimizer_Options::get_option( 'watermark_image_path' ) : '';
-		if ( $watermark_image_path ) {
-			$watermark_position = Qode_Optimizer_Options::get_option( 'watermark_position' );
-
-			$offset_x = 10;
-			$offset_y = 10;
-
-			switch ( $watermark_position ) {
-				case 'top-left':
-					$gravity = 'NorthWest';
-					break;
-				case 'top-right':
-					$gravity = 'NorthEast';
-					break;
-				case 'bottom-left':
-					$gravity = 'SouthWest';
-					break;
-				case 'bottom-right':
-					$gravity = 'SouthEast';
-					break;
-				case '':
-				case 'centered':
-					$gravity  = 'Center';
-					$offset_x = 0;
-					$offset_y = 0;
-					break;
-				default:
-					$gravity  = 'NorthWest';
-					$offset_x = 0;
-					$offset_y = 0;
-					break;
-			}
-
-			$tool_path = Qode_Optimizer_Support::get_tool_working_path( 'convert' );
-
-			$system_log->add_log( $tool_path . ' ' . escapeshellarg( $this->file ) . ' -coalesce -gravity ' . $gravity . ' -geometry +' . $offset_x . '+' . $offset_y . ' null: ' . escapeshellarg( $watermark_image_path ) . ' -layers composite -layers optimize ' . escapeshellarg( $this->file ) );
-
-			/**
-			 * $command = $tool_path . ' '
-				. escapeshellarg( $this->file )
-				. ' -coalesce -gravity ' . $gravity . ' -geometry +' . $offset_x . '+' . $offset_y . ' null: '
-				. escapeshellarg( $watermark_image_path )
-				. ' -layers composite -layers optimize '
-				. escapeshellarg( $this->file );
-			 */
-			$command = $tool_path . ' ' . escapeshellarg( $this->file ) . ' -coalesce -gravity ' . $gravity . ' -geometry +' . $offset_x . '+' . $offset_y . ' null: ' . escapeshellarg( $watermark_image_path ) . ' -layers composite -layers optimize ' . escapeshellarg( $this->file );
-
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
-			if ( false !== exec( $command ) ) {
-				$system_log->add_log( 'Image was successfully watermarked' );
-
-				return true;
-			}
-		}
-
-		$system_log->add_log( 'No watermark was applied to image' );
 
 		return false;
 	}
@@ -814,7 +527,7 @@ abstract class Qode_Optimizer_Image {
 			return false;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$new_file    = $editor->generate_filename( 'tmp' );
 		$saving_file = $editor->save( $new_file );
@@ -935,7 +648,7 @@ abstract class Qode_Optimizer_Image {
 			return false;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if (
 			! $filesystem->is_file( $this->file ) ||
@@ -1282,7 +995,7 @@ abstract class Qode_Optimizer_Image {
 		$output->set_param( 'filesize', '' );
 		$output->set_param( 'success', false );
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if (
 			! $filesystem->is_file( $this->file ) ||
@@ -1300,7 +1013,10 @@ abstract class Qode_Optimizer_Image {
 		$output->set_param( 'filesize_raw', $initial_size );
 		$output->set_param( 'filesize', $filesystem->readable_size_format( $initial_size ) );
 
-		$new_size = $do_resize && in_array( $this->media_size, array( 'original', 'scaled' ), true ) ? $this->resize() : '';
+		$new_size = $do_resize && in_array( $this->media_size, array(
+			'original',
+			'scaled'
+		), true ) ? $this->resize() : '';
 		if ( $new_size ) {
 			$output->set_param( 'filesize_raw', $new_size );
 			$output->set_param( 'filesize', $filesystem->readable_size_format( $new_size ) );
@@ -1322,506 +1038,6 @@ abstract class Qode_Optimizer_Image {
 
 		return $output;
 	}
-
-	/**********************************************
-	 * CONVERSION (OPTIONAL)
-	 *
-	 * 3rd step in optimizing images
-	 *********************************************/
-
-	/**
-	 * Convert main and thumb images
-	 *
-	 * @param array $conversion_methods_queue List of methods for trying to convert image with, if one fails system tries another one from the list
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function image_and_thumbs_convert( $conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' ) ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		if ( ! is_array( $conversion_methods_queue ) ) {
-			$conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' );
-		}
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$system_log->add_log( '* CONVERSION OF MAIN IMAGE AND THUMBS', true );
-
-		if ( 'local' === Qode_Optimizer_Options::get_option( 'backup_method' ) ) {
-			$this->create_image_and_thumbs_backup();
-		}
-
-		$this->image_and_thumbs_remove_webp();
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		// Conversion - original image.
-		try {
-			$system_log->add_log( 'Start the process of converting the main image' );
-
-			$main_file_output = $this->convert( $conversion_methods_queue );
-
-			$system_log->add_log( 'Finish the process of converting the main image' );
-
-			$current_file = get_attached_file( $this->id );
-			$current_size = $filesystem->filesize( $current_file );
-
-			$output->set_param( 'original_file', wp_basename( $current_file ) );
-			$output->set_param( 'initial_size_raw', $current_size );
-			$output->set_param( 'initial_size', $filesystem->readable_size_format( $current_size ) );
-
-			// Main image conversion failed.
-			if ( ! $main_file_output->get_param( 'file' ) ) {
-
-				if ( $main_file_output->get_param( 'result' ) ) {
-					$output->set_param( 'result', $main_file_output->get_param( 'result' ) );
-				}
-
-				$system_log->add_log( 'The main image was not converted successfully. Conversion process is stopped' );
-
-				return $output;
-			}
-		} catch ( Exception $exception ) {
-			$system_log->add_log( 'Some error occurred during a process of converting the original image' );
-		}
-
-		$all_files_params   = $output->get_param( 'files' );
-		$all_files_params[] = $main_file_output;
-		$output->set_param( 'files', $all_files_params );
-
-		if ( $main_file_output->get_param( 'file' ) ) {
-			$output->set_param( 'success', true );
-		}
-
-		// Conversion - thumbs.
-		if ( $this->has_thumbs() ) {
-			try {
-				$thumbs_files_output = $this->thumbs_convert( $conversion_methods_queue );
-
-				// One or more thumb image conversions failed, rollback, delete any of successfully converted files so far.
-				if ( ! $thumbs_files_output->get_param( 'success' ) ) {
-					$output->set_param( 'success', false );
-
-					// Delete converted main file.
-					$main_file = $main_file_output->get_param( 'file' );
-					if ( $main_file ) {
-						$filesystem->delete_file( $main_file_output->get_param( 'file' ) );
-					}
-
-					// Delete converted thumb files.
-					$thumb_output_files = $thumbs_files_output->get_param( 'files' );
-					foreach ( $thumb_output_files as $file ) {
-
-						if ( $file instanceof Qode_Optimizer_Output ) {
-							$current_thumb_file = $file->get_param( 'file' );
-							if ( $current_thumb_file ) {
-								$filesystem->delete_file( $current_thumb_file );
-							} elseif ( $file->get_param( 'result' ) ) {
-								$output->set_param( 'result', $file->get_param( 'result' ) );
-							}
-						}
-					}
-
-					$system_log->add_log( 'One or more thumb images was not converted successfully, rollback, delete any of successfully converted files so far. Conversion process is stopped' );
-
-					return $output;
-				}
-			} catch ( Exception $exception ) {
-				$system_log->add_log( 'Some error occurred during a process of converting the thumb images' );
-			}
-
-			$all_files_params = $output->get_param( 'files' );
-			$all_files_params = array_merge( $all_files_params, $thumbs_files_output->get_param( 'files' ) );
-			$output->set_param( 'files', $all_files_params );
-
-			if ( $output->get_param( 'success' ) ) {
-				$output->set_param( 'success', $thumbs_files_output->get_param( 'success' ) );
-			}
-		}
-
-		if ( $output->get_param( 'success' ) ) {
-			$this->save_modifications( 'conversion', $output );
-
-			// Update attachment's file path and mime-type.
-			static::update_attachment_info( $this->id, $this->converted_file, static::CONVERSION_MIME_TYPE );
-
-			// Update attachment's metadata.
-			$metadata = $this->metadata_from_output( $this->converted_file, $output );
-			if (
-				$metadata &&
-				Qode_Optimizer_Utility::multiple_array_keys_exist(
-					array(
-						'wp_attached_file',
-						'wp_attachment_metadata',
-					),
-					$metadata
-				)
-			) {
-				static::update_attachment_metadata( $this->id, $metadata['wp_attached_file'], $metadata['wp_attachment_metadata'] );
-			}
-
-			// Update all posts' content including attachment's url.
-			$update_data = static::prepare_db_update_url_params( $this->id, 'output', $output );
-			if ( $update_data ) {
-				static::db_update_url( $update_data );
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Convert main image thumbs
-	 *
-	 * @param array $conversion_methods_queue List of methods for trying to convert image with, if one fails system tries another one from the list
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function thumbs_convert( $conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' ) ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		if ( ! is_array( $conversion_methods_queue ) ) {
-			$conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' );
-		}
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$all_thumbs = new Qode_Optimizer_Images(
-			array(
-				'files'                  => $this->get_all_image_thumb_path_info(),
-				'additional_compression' => $this->additional_compression,
-			)
-		);
-
-		// Conversion - thumbs.
-		try {
-			$system_log->add_log( 'Start the process of converting the thumb images' );
-
-			$output = $all_thumbs->multiple_convert( $conversion_methods_queue );
-
-			$system_log->add_log( 'Finish the process of converting the thumb images' );
-		} catch ( Exception $exception ) {
-			$system_log->add_log( 'Some error occurred during a process of converting multiple images' );
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Convert folders images
-	 *
-	 * @param array $conversion_methods_queue List of methods for trying to convert image with, if one fails system tries another one from the list
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function folders_image_convert( $conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' ) ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		if ( ! is_array( $conversion_methods_queue ) ) {
-			$conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' );
-		}
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$system_log->add_log( '* CONVERSION OF THE FOLDERS IMAGE', true );
-
-		if (
-			! Qode_Optimizer_Options::get_option( 'backup_already_made' ) &&
-			'local' === Qode_Optimizer_Options::get_option( 'backup_method' )
-		) {
-			$this->create_folders_image_and_thumbs_backup();
-		}
-
-		$this->remove_webp();
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		// Conversion - folders image.
-		try {
-			$system_log->add_log( 'Start the process of converting the folders image' );
-
-			$folders_file_output = $this->convert( $conversion_methods_queue );
-
-			$system_log->add_log( 'Finish the process of converting the folders image' );
-
-			$current_file = $this->file;
-			$current_size = $filesystem->filesize( $current_file );
-
-			$output->set_param( 'original_file', wp_basename( $current_file ) );
-			$output->set_param( 'initial_size_raw', $current_size );
-			$output->set_param( 'initial_size', $filesystem->readable_size_format( $current_size ) );
-
-			// Folders image conversion failed.
-			if ( ! $folders_file_output->get_param( 'file' ) ) {
-
-				if ( $folders_file_output->get_param( 'result' ) ) {
-					$output->set_param( 'result', $folders_file_output->get_param( 'result' ) );
-				}
-
-				$system_log->add_log( 'Folder image was not converted successfully. Conversion process is stopped' );
-
-				return $output;
-			}
-		} catch ( Exception $exception ) {
-			$system_log->add_log( 'Some error occurred during a process of converting the folders image' );
-		}
-
-		$all_files_params   = $output->get_param( 'files' );
-		$all_files_params[] = $folders_file_output;
-		$output->set_param( 'files', $all_files_params );
-
-		if ( $folders_file_output->get_param( 'file' ) ) {
-			$output->set_param( 'success', true );
-		}
-
-		if ( $output->get_param( 'success' ) ) {
-			$this->save_folders_modifications( 'conversion', $output );
-
-			// Update all posts' content including attachment's url.
-			$update_data = static::folders_image_prepare_db_update_url_params( $this->file, 'output', $output );
-			if ( $update_data ) {
-				static::db_update_url( $update_data );
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Image conversion using built-in PHP functions.
-	 *
-	 * @access public
-	 *
-	 * @param array $conversion_methods_queue List of methods for trying to convert image with, if one fails system tries another one from the list
-	 * @param bool $check_size Converted/original file sizes comparison. Converted file size must be smaller than original file size
-	 *
-	 * @return Qode_Optimizer_Output
-	 *
-	 * @throws GmagickException On error
-	 * @throws ImagickException Throws ImagickException on error
-	 */
-	public function convert( $conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' ), $check_size = true ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		if ( ! is_array( $conversion_methods_queue ) ) {
-			$conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' );
-		}
-
-		$system_log->add_log( 'File to convert: ' . wp_basename( $this->file ) );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-		$output     = new Qode_Optimizer_Output();
-		$output->set_param( 'file', false );
-
-		if (
-			! $filesystem->is_file( $this->file ) ||
-			! $filesystem->is_writable( $this->file ) ||
-			! static::MIME_TYPE ||
-			! in_array( static::MIME_TYPE, static::ALLOWED_MIME_TYPES['general'], true )
-		) {
-			$output->add_message( 'Some error occurred' );
-
-			return $output;
-		}
-
-		$output         = $this->convert_by_mime_type( $conversion_methods_queue, $check_size );
-		$converted_file = $output->get_param( 'file' );
-
-		if ( $converted_file ) {
-			$converted_file_real = realpath( $converted_file );
-
-			if (
-				$converted_file_real &&
-				$filesystem->is_file( $converted_file_real )
-			) {
-				$this->converted_file = $converted_file;
-				$this->is_converted   = true;
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Image conversion by mime-type
-	 *
-	 * @param array $conversion_methods_queue List of methods for trying to convert image with, if one fails system tries another one from the list
-	 * @param string $check_size Converted/original file sizes comparison. Converted file size must be smaller than original file size
-	 *
-	 * @return Qode_Optimizer_Output
-	 *
-	 * @throws GmagickException On error
-	 * @throws ImagickException Throws ImagickException on error
-	 */
-	protected function convert_by_mime_type( $conversion_methods_queue, $check_size ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		if ( ! is_array( $conversion_methods_queue ) ) {
-			$conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' );
-		}
-
-		$system_log->add_log( 'Using conversion method(s): ' . implode( ', ', $conversion_methods_queue ) );
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'file', false );
-		$output->set_param( 'previous_file', $this->file );
-		$output->set_param( 'previous_file_basename', wp_basename( $this->file ) );
-		$output->set_param( 'previous_url', trailingslashit( dirname( $this->url ) ) . wp_basename( $this->file ) );
-		$output->set_param( 'media_size', '' );
-		$output->set_param( 'initial_size_raw', 0 );
-		$output->set_param( 'initial_size', '' );
-		$output->set_param( 'filesize_raw', 0 );
-		$output->set_param( 'filesize', '' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		// Conversion.
-		$new_filesize = 0;
-		$initial_size = $filesystem->filesize( $this->file );
-		$output->set_param( 'initial_size_raw', $initial_size );
-		$output->set_param( 'initial_size', $filesystem->readable_size_format( $initial_size ) );
-
-		$conversion_extension = static::ALLOWED_MIME_TYPES['mime_type_extension_map'][ static::CONVERSION_MIME_TYPE ];
-
-		// Target file for conversion doesn't have unique filename.
-		$new_file = $this->create_unique_filename( $this->file, $conversion_extension );
-		if ( ! $new_file ) {
-			$output->set_param( 'result', 'Unique filename creation failed, conversion skipped' );
-
-			$system_log->add_log( 'Unique filename creation failed. Conversion process is stopped' );
-
-			return $output;
-		}
-
-		// Target file for conversion already exists.
-		if ( $filesystem->is_file( $new_file ) ) {
-			$output->set_param( 'result', 'Target file already exists, conversion skipped' );
-
-			$system_log->add_log( 'Target file for conversion already exists (another image already exists with that filename). Conversion process is stopped' );
-
-			return $output;
-		}
-
-		$conversion_params = $this->get_conversion_params();
-
-		foreach ( $conversion_methods_queue as $method ) {
-			switch ( $method ) {
-				case 'gmagick':
-					// Gmagick conversion.
-					if (
-						! $new_filesize &&
-						Qode_Optimizer_Support::get_system_param( 'gmagick_support_exists' )
-					) {
-						$output->add_message( 'Conversion via Gmagick' );
-						$new_filesize = $this->gmagick_convert_by_mime_type( $new_file, $conversion_params );
-					}
-					break;
-				case 'imagick':
-					// Imagick conversion.
-					if (
-						! $new_filesize &&
-						Qode_Optimizer_Support::get_system_param( 'imagick_support_exists' )
-					) {
-						$output->add_message( 'Conversion via Imagick' );
-						$new_filesize = $this->imagick_convert_by_mime_type( $new_file, $conversion_params );
-					}
-					break;
-				case 'gd':
-					// GD conversion.
-					if (
-						! $new_filesize &&
-						Qode_Optimizer_Support::get_system_param( 'gd_support_exists' )
-					) {
-						$output->add_message( 'Conversion via GD' );
-						$new_filesize = $this->gd_convert_by_mime_type( $new_file, $conversion_params );
-					}
-					break;
-				default:
-					break;
-			}
-		}
-
-		if (
-			$filesystem->is_file( $new_file ) &&
-			static::CONVERSION_MIME_TYPE === $filesystem->get_mime_type( $new_file )
-		) {
-			if (
-				! $check_size ||
-				$new_filesize < $initial_size
-			) {
-				$output->set_param( 'file', $new_file );
-				$output->set_param( 'file_basename', wp_basename( $new_file ) );
-				$output->set_param( 'media_size', $this->media_size );
-				$output->set_param( 'filesize_raw', $new_filesize );
-				$output->set_param( 'filesize', $filesystem->readable_size_format( $new_filesize ) );
-				$output->set_param( 'url', trailingslashit( dirname( $this->url ) ) . wp_basename( $new_file ) );
-				$output->set_param( 'result', $filesystem->readable_filesize_savings( $initial_size, $new_filesize ) );
-				$output->add_message( 'Results: ' . $filesystem->readable_filesize_savings( $initial_size, $new_filesize ) );
-
-				return $output;
-			} elseif (
-				$check_size &&
-				$new_filesize >= $initial_size
-			) {
-				$filesystem->delete_file( $new_file );
-				$output->set_param( 'result', 'Image too large and deleted' );
-				$output->add_message( 'Image was too large and was deleted' );
-
-				return $output;
-			}
-		} else {
-			$output->add_message( 'Image conversion failed' );
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Get conversion params
-	 *
-	 * @return array
-	 */
-	abstract protected function get_conversion_params();
-
-	/**
-	 * Gmagick image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 *
-	 * @throws GmagickException On error
-	 */
-	abstract protected function gmagick_convert_by_mime_type( $new_file, $conversion_params );
-
-	/**
-	 * Imagick image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 *
-	 * @throws ImagickException Throws ImagickException on error
-	 */
-	abstract protected function imagick_convert_by_mime_type( $new_file, $conversion_params );
-
-	/**
-	 * GD image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	abstract protected function gd_convert_by_mime_type( $new_file, $conversion_params );
 
 	/**********************************************
 	 * WEBP CREATION (OPTIONAL)
@@ -1866,7 +1082,7 @@ abstract class Qode_Optimizer_Image {
 
 		$system_log->add_log( '* CREATION OF WEBP FILES FOR THE MAIN IMAGE AND THUMBS', true );
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		// WebP creation - original image.
 		try {
@@ -2088,7 +1304,7 @@ abstract class Qode_Optimizer_Image {
 		$output->set_param( 'filesize_raw', 0 );
 		$output->set_param( 'filesize', '' );
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if (
 			! $filesystem->is_file( $this->file ) ||
@@ -2179,7 +1395,8 @@ abstract class Qode_Optimizer_Image {
 			$output->set_param( 'result', $filesystem->readable_filesize_savings( $initial_size, $webp_size ) );
 			$output->add_message( 'WebP: ' . $filesystem->readable_filesize_savings( $initial_size, $webp_size ) );
 		} else {
-			$output->add_message( 'WebP image conversion failed' );
+			$output->set_param( 'result', 'No WebP image was created' );
+			$output->add_message( 'No WebP image was created' );
 		}
 
 		return $output;
@@ -2349,7 +1566,7 @@ abstract class Qode_Optimizer_Image {
 
 		$files_for_deletion = array_diff_assoc( $files_for_deletion, $backup_data['original_paths'] );
 		if ( $files_for_deletion ) {
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 			foreach ( $files_for_deletion as $file_for_deletion ) {
 				$filesystem->delete_file( $file_for_deletion );
 			}
@@ -2446,7 +1663,7 @@ abstract class Qode_Optimizer_Image {
 
 		$files_for_deletion = array_diff_assoc( $files_for_deletion, $backup_data['original_paths'] );
 		if ( $files_for_deletion ) {
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 			foreach ( $files_for_deletion as $file_for_deletion ) {
 				$filesystem->delete_file( $file_for_deletion );
 			}
@@ -3023,7 +2240,7 @@ abstract class Qode_Optimizer_Image {
 
 		$system_log->add_log( 'File to delete: ' . wp_basename( $this->file ) );
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$success = $filesystem->delete_file( $this->file );
 		$output->set_param( 'success', $success );
@@ -3119,7 +2336,7 @@ abstract class Qode_Optimizer_Image {
 
 		$system_log->add_log( 'File to remove: ' . wp_basename( $webp_file ) );
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$success = $filesystem->delete_file( $webp_file );
 		$output->set_param( 'success', $success );
@@ -3198,7 +2415,7 @@ abstract class Qode_Optimizer_Image {
 		$output = new Qode_Optimizer_Output();
 		$output->set_param( 'success', true );
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		// Backup removal.
 		foreach ( $already_modified_info['backup'] as $backup_row ) {
@@ -3302,29 +2519,9 @@ abstract class Qode_Optimizer_Image {
 		$thumb_path['attachment_id'] = $this->id;
 		$thumb_paths[]               = $thumb_path;
 
-		// Remove disabled image sizes.
-		switch ( $procedure ) {
-			case 'optimization':
-				$disabled_sizes = Qode_Optimizer_Options::get_option( 'disable_image_optimization' );
-				break;
-			case 'creation':
-				$disabled_sizes = Qode_Optimizer_Options::get_option( 'disable_image_creation' );
-				break;
-			default:
-				$disabled_sizes = array();
-				break;
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			return Qode_OptimizerPremium_Utility::disable_image_sizes( $thumb_paths, $procedure );
 		}
-
-		if ( ! is_array( $disabled_sizes ) ) {
-			$disabled_sizes = array();
-		}
-
-		$thumb_paths = array_filter(
-			$thumb_paths,
-			function ( $item ) use ( $disabled_sizes ) {
-				return ! in_array( $item['media_size'], $disabled_sizes, true );
-			}
-		);
 
 		return $thumb_paths;
 	}
@@ -3390,7 +2587,7 @@ abstract class Qode_Optimizer_Image {
 	 *
 	 * @param bool $recreate
 	 */
-	protected function create_image_and_thumbs_backup( $recreate = false ) {
+	public function create_image_and_thumbs_backup( $recreate = false ) {
 		$backup = new Qode_Optimizer_Backup();
 
 		if (
@@ -3408,7 +2605,7 @@ abstract class Qode_Optimizer_Image {
 	 *
 	 * @param bool $recreate
 	 */
-	protected function create_folders_image_and_thumbs_backup( $recreate = false ) {
+	public function create_folders_image_and_thumbs_backup( $recreate = false ) {
 		$backup = new Qode_Optimizer_Backup();
 
 		if (
@@ -3427,8 +2624,11 @@ abstract class Qode_Optimizer_Image {
 	 * @param string $source
 	 * @param Qode_Optimizer_Output $output
 	 */
-	protected function save_modifications( $source, $output ) {
-		$files = is_string( $source ) && in_array( $source, array( 'optimization', 'conversion' ), true ) && $output instanceof Qode_Optimizer_Output ? $output->get_param( 'files' ) : '';
+	public function save_modifications( $source, $output ) {
+		$files = is_string( $source ) && in_array( $source, array(
+			'optimization',
+			'conversion'
+		), true ) && $output instanceof Qode_Optimizer_Output ? $output->get_param( 'files' ) : '';
 
 		if ( $files ) {
 			global $wpdb;
@@ -3590,8 +2790,11 @@ abstract class Qode_Optimizer_Image {
 	 * @param string $source
 	 * @param Qode_Optimizer_Output $output
 	 */
-	protected function save_folders_modifications( $source, $output ) {
-		$files = is_string( $source ) && in_array( $source, array( 'optimization', 'conversion' ), true ) && $output instanceof Qode_Optimizer_Output ? $output->get_param( 'files' ) : '';
+	public function save_folders_modifications( $source, $output ) {
+		$files = is_string( $source ) && in_array( $source, array(
+			'optimization',
+			'conversion'
+		), true ) && $output instanceof Qode_Optimizer_Output ? $output->get_param( 'files' ) : '';
 
 		if ( $files ) {
 			global $wpdb;

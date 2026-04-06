@@ -7,17 +7,16 @@ namespace Composer\Autoload;
 class ComposerStaticInita30941defe58df46dd6bb9384b976c65
 {
     public static $prefixLengthsPsr4 = array (
-        'l' => 
+        'l' =>
         array (
             'lsolesen\\pel\\' => 13,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'lsolesen\\pel\\' => 
+        'lsolesen\\pel\\' =>
         array (
-            0 => __DIR__ . '/..' . '/lsolesen/pel/src',
-            1 => __DIR__ . '/..' . '/fileeye/pel/src',
+            0 => __DIR__ . '/..' . '/fileeye/pel/src',
         ),
     );
 

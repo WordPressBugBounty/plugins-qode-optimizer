@@ -59,7 +59,7 @@
 						qodefUtilities.message        = $formSubmitSection.find( '.qodef-message' );
 
 						$( '<div id="qodef-dialog"></div>' ).appendTo( 'body' )
-							.html( '<div><h5>${utilityParams.confirmationMessage}<br />Are you sure?</h5></div>' )
+							.html( '<div><h5>' + utilityParams.confirmationMessage + '<br />Are you sure?</h5></div>' )
 							.dialog(
 								{
 									modal: true,
@@ -144,7 +144,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'utility_action_resolve_optimization_history_issues',
+						action: 'qode_optimizer_utility_action_resolve_optimization_history_issues',
 						options: options,
 					},
 					success: function ( data ) {
@@ -162,7 +162,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'utility_action_delete_optimization_history',
+						action: 'qode_optimizer_utility_action_delete_optimization_history',
 						options: options,
 					},
 					success: function ( data ) {
@@ -180,7 +180,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'utility_action_clean_up_optimization_history',
+						action: 'qode_optimizer_utility_action_clean_up_optimization_history',
 						options: options,
 					},
 					success: function ( data ) {
@@ -198,7 +198,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'utility_action_delete_webp_images',
+						action: 'qode_optimizer_utility_action_delete_webp_images',
 						options: options,
 					},
 					success: function ( data ) {
@@ -216,7 +216,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'utility_action_delete_all_webp_images',
+						action: 'qode_optimizer_utility_action_delete_all_webp_images',
 						options: options,
 					},
 					success: function ( data ) {

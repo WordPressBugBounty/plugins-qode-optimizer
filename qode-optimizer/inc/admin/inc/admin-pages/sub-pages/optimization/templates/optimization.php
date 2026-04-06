@@ -136,7 +136,7 @@ if ( empty( $selected_ids_array ) ) {
  * Additional folders section
  */
 
-$filesystem = new Qode_Optimizer_Filesystem();
+$filesystem = new Qode_Optimizer_Filesystem( true );
 
 $backup_paths_array      = array();
 $backup_ids_for_deletion = array();

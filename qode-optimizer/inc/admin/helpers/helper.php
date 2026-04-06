@@ -18,7 +18,7 @@ if ( ! function_exists( 'qode_optimizer_framework_template_part' ) ) {
 		$module_template_part = qode_optimizer_framework_get_template_part( $root, $module, $template, $slug, $params );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo qode_optimizer_framework_wp_kses_html( 'html', $module_template_part );
+		echo wp_kses_post( $module_template_part );
 	}
 }
 
@@ -123,7 +123,7 @@ if ( ! function_exists( 'qode_optimizer_framework_svg_icon' ) ) {
 		$svg_template_part = qode_optimizer_framework_get_svg_icon( $name, $class_name );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo qode_optimizer_framework_wp_kses_html( 'html', $svg_template_part );
+		echo wp_kses_post( $svg_template_part );
 	}
 }
 
@@ -162,238 +162,225 @@ if ( ! function_exists( 'qode_optimizer_framework_get_svg_icon' ) ) {
 	}
 }
 
-if ( ! function_exists( 'qode_optimizer_framework_wp_kses_html' ) ) {
-	/**
-	 * Function that does escape of specific html.
-	 * It uses wp_kses function with predefined attributes array.
-	 *
-	 * @see wp_kses()
-	 *
-	 * @param string $type - type of html element
-	 * @param string $content - string to escape
-	 *
-	 * @return string escaped output
-	 */
-	function qode_optimizer_framework_wp_kses_html( $type, $content ) {
-		switch ( $type ) {
-			case 'description':
-				$atts = array(
-					'code' => apply_filters(
-						'qode_optimizer_filter_framework_wp_kses_description_atts',
-						array()
-					),
-				);
-				break;
-			case 'img':
-				$atts = array(
-					'img' => apply_filters(
-						'qode_optimizer_filter_framework_wp_kses_img_atts',
-						array(
-							'itemprop' => true,
-							'id'       => true,
-							'class'    => true,
-							'width'    => true,
-							'height'   => true,
-							'src'      => true,
-							'srcset'   => true,
-							'sizes'    => true,
-							'alt'      => true,
-							'title'    => true,
-						)
-					),
-				);
-				break;
-			case 'svg':
-				$atts = apply_filters(
-					'qode_optimizer_filter_framework_wp_kses_svg_atts',
-					array(
-						'svg'      => array(
-							'xmlns'             => true,
-							'version'           => true,
-							'id'                => true,
-							'class'             => true,
-							'x'                 => true,
-							'y'                 => true,
-							'aria-hidden'       => true,
-							'aria-labelledby'   => true,
-							'role'              => true,
-							'width'             => true,
-							'height'            => true,
-							'viewbox'           => true,
-							'enable-background' => true,
-							'focusable'         => true,
-							'data-prefix'       => true,
-							'data-icon'         => true,
-						),
-						'g'        => array(
-							'stroke'       => true,
-							'stroke-width' => true,
-							'fill'         => true,
-							'fill-opacity' => true,
-							'transform'    => true,
-						),
-						'rect'     => array(
-							'x'            => true,
-							'y'            => true,
-							'width'        => true,
-							'height'       => true,
-							'stroke'       => true,
-							'stroke-width' => true,
-							'fill'         => true,
-							'fill-opacity' => true,
-							'transform'    => true,
-							'rx'           => true,
-							'ry'           => true,
-						),
-						'title'    => array(
-							'title' => true,
-							'class' => true,
-							'style' => true,
-						),
-						'path'     => array(
-							'd'            => true,
-							'stroke'       => true,
-							'stroke-width' => true,
-							'fill'         => true,
-							'fill-opacity' => true,
-							'transform'    => true,
-							'pathlength'   => true,
-						),
-						'polygon'  => array(
-							'points'    => true,
-							'transform' => true,
-						),
-						'line'     => array(
-							'x1'           => true,
-							'x2'           => true,
-							'y1'           => true,
-							'y2'           => true,
-							'stroke'       => true,
-							'stroke-width' => true,
-							'transform'    => true,
-						),
-						'polyline' => array(
-							'points'    => true,
-							'stroke'    => true,
-							'fill'      => true,
-							'transform' => true,
-						),
-						'circle'   => array(
-							'cx'           => true,
-							'cy'           => true,
-							'r'            => true,
-							'stroke'       => true,
-							'stroke-width' => true,
-							'fill'         => true,
-							'fill-opacity' => true,
-							'transform'    => true,
-						),
-						'ellipse'  => array(
-							'class'        => true,
-							'cx'           => true,
-							'cy'           => true,
-							'rx'           => true,
-							'ry'           => true,
-							'stroke'       => true,
-							'stroke-width' => true,
-							'fill'         => true,
-							'fill-opacity' => true,
-							'transform'    => true,
-						),
-						'text'     => array(
-							'x'         => true,
-							'y'         => true,
-							'class'     => true,
-							'style'     => true,
-							'transform' => true,
-						),
-					)
-				);
-				break;
-			case 'content':
-				$atts = apply_filters(
-					'qode_optimizer_filter_framework_wp_kses_content_atts',
-					array(
-						'div'  => array(
-							'id'    => true,
-							'class' => true,
-							'style' => true,
-						),
-						'ul'   => array(
-							'class' => true,
-						),
-						'li'   => array(
-							'class' => true,
-						),
-						'br'   => true,
-						'h1'   => array(
-							'class' => true,
-							'style' => true,
-						),
-						'h2'   => array(
-							'class' => true,
-							'style' => true,
-						),
-						'h3'   => array(
-							'class' => true,
-							'style' => true,
-						),
-						'h4'   => array(
-							'class' => true,
-							'style' => true,
-						),
-						'h5'   => array(
-							'class' => true,
-							'style' => true,
-						),
-						'h6'   => array(
-							'class' => true,
-							'style' => true,
-						),
-						'p'    => array(
-							'id'    => true,
-							'class' => true,
-							'style' => true,
-						),
-						'a'    => array(
-							'itemprop' => true,
-							'id'       => true,
-							'class'    => true,
-							'href'     => true,
-							'target'   => true,
-							'style'    => true,
-							'rel'      => true,
-							'data-rel' => true,
-						),
-						'span' => array(
-							'id'    => true,
-							'class' => true,
-							'style' => true,
-						),
-						'i'    => array(
-							'class' => true,
-						),
-						'img'  => array(
-							'itemprop' => true,
-							'id'       => true,
-							'class'    => true,
-							'width'    => true,
-							'height'   => true,
-							'src'      => true,
-							'srcset'   => true,
-							'sizes'    => true,
-							'alt'      => true,
-							'title'    => true,
-						),
-					)
-				);
-				break;
-			default:
-				return apply_filters( 'qode_optimizer_framework_filter_wp_kses_custom', $content, $type );
-		}
 
-		return wp_kses( $content, $atts );
+if ( ! function_exists( 'qode_optimizer_framework_extend_wp_kses_allowed_html' ) ) {
+	/**
+	 * Function that extend an array of allowed HTML tags and attributes for a given context.
+	 *
+	 * @param array $allowedposttags
+	 * @param string|array $context The context for which to retrieve tags. Allowed values are 'post',
+	 *                               'strip', 'data', 'entities', or the name of a field filter such as
+	 *                               'pre_user_description', or an array of allowed HTML elements and attributes.
+	 *
+	 * @return array Array of allowed HTML tags and their allowed attributes.
+	 */
+	function qode_optimizer_framework_extend_wp_kses_allowed_html( $allowedposttags, $context ) {
+		
+		if ( 'post' === $context ) {
+			$svg_atts = apply_filters(
+				'qode_optimizer_filter_framework_wp_kses_svg_atts',
+				array(
+					'svg'      => array(
+						'xmlns'             => true,
+						'version'           => true,
+						'id'                => true,
+						'class'             => true,
+						'x'                 => true,
+						'y'                 => true,
+						'aria-hidden'       => true,
+						'aria-labelledby'   => true,
+						'role'              => true,
+						'width'             => true,
+						'height'            => true,
+						'viewbox'           => true,
+						'enable-background' => true,
+						'focusable'         => true,
+						'data-prefix'       => true,
+						'data-icon'         => true,
+					),
+					'g'        => array(
+						'stroke'       => true,
+						'stroke-width' => true,
+						'fill'         => true,
+						'fill-opacity' => true,
+						'transform'    => true,
+						'clip-path'    => true,
+						'mask'         => true,
+					),
+					'rect'     => array(
+						'x'            => true,
+						'y'            => true,
+						'width'        => true,
+						'height'       => true,
+						'stroke'       => true,
+						'stroke-width' => true,
+						'fill'         => true,
+						'fill-rule'    => true,
+						'fill-opacity' => true,
+						'transform'    => true,
+						'rx'           => true,
+						'ry'           => true,
+					),
+					'path'     => array(
+						'd'            => true,
+						'stroke'       => true,
+						'stroke-width' => true,
+						'fill'         => true,
+						'fill-opacity' => true,
+						'transform'    => true,
+						'pathlength'   => true,
+					),
+					'polygon'  => array(
+						'fill'      => true,
+						'fill-rule' => true,
+						'points'    => true,
+						'transform' => true,
+					),
+					'line'     => array(
+						'x1'           => true,
+						'x2'           => true,
+						'y1'           => true,
+						'y2'           => true,
+						'fill'         => true,
+						'fill-rule'    => true,
+						'stroke'       => true,
+						'stroke-width' => true,
+						'transform'    => true,
+					),
+					'polyline' => array(
+						'points'    => true,
+						'stroke'    => true,
+						'fill'      => true,
+						'transform' => true,
+					),
+					'circle'   => array(
+						'cx'           => true,
+						'cy'           => true,
+						'r'            => true,
+						'stroke'       => true,
+						'stroke-width' => true,
+						'fill'         => true,
+						'fill-opacity' => true,
+						'transform'    => true,
+					),
+					'ellipse'  => array(
+						'class'        => true,
+						'cx'           => true,
+						'cy'           => true,
+						'rx'           => true,
+						'ry'           => true,
+						'stroke'       => true,
+						'stroke-width' => true,
+						'fill'         => true,
+						'fill-opacity' => true,
+						'transform'    => true,
+					),
+					'text'     => array(
+						'x'         => true,
+						'y'         => true,
+						'class'     => true,
+						'style'     => true,
+						'transform' => true,
+					),
+					'mask'     => array(
+						'id'        => true,
+						'fill'      => true,
+						'style'     => true,
+						'maskUnits' => true,
+						'x'         => true,
+						'y'         => true,
+						'width'     => true,
+						'height'    => true,
+					),
+					'defs'     => array(
+						'id' => true,
+					),
+					'clipPath' => array(
+						'id' => true,
+					),
+				)
+			);
+			
+			$allowedposttags['form'] = array(
+				'action'         => true,
+				'method'         => true,
+				'enctype'        => true,
+				'id'             => true,
+				'class'          => true,
+				'target'         => true,
+				'autocomplete'   => true,
+				'novalidate'     => true,
+				'accept-charset' => true,
+				'data-*'         => true,
+			);
+			
+			
+			$allowedposttags['input'] = array(
+				'type'         => true,
+				'name'         => true,
+				'value'        => true,
+				'id'           => true,
+				'class'        => true,
+				'placeholder'  => true,
+				'checked'      => true,
+				'disabled'     => true,
+				'readonly'     => true,
+				'size'         => true,
+				'maxlength'    => true,
+				'min'          => true,
+				'max'          => true,
+				'step'         => true,
+				'autocomplete' => true,
+				'pattern'      => true,
+				'required'     => true,
+				'multiple'     => true,
+				'src'          => true,
+				'alt'          => true,
+				'accept'       => true,
+				'data-*'       => true,
+			);
+			
+			$allowedposttags['select'] = array(
+				'name'        => true,
+				'class'       => true,
+				'id'          => true,
+				'multiple'    => true,
+				'required'    => true,
+				'disabled'    => true,
+				'size'        => true,
+				'data-*'      => true,
+			);
+			
+			
+			$allowedposttags['option'] = array(
+				'value'       => true,
+				'selected'    => true,
+				'disabled'    => true,
+				'label'       => true,
+			);
+			
+			
+			$allowedposttags['textarea'] = array(
+				'name'        => true,
+				'class'       => true,
+				'id'          => true,
+				'rows'        => true,
+				'cols'        => true,
+				'placeholder' => true,
+				'required'    => true,
+				'disabled'    => true,
+				'readonly'    => true,
+				'maxlength'   => true,
+				'data-*'      => true,
+			);
+			
+			$allowedposttags = array_merge( $allowedposttags, $svg_atts );
+		}
+		
+		return $allowedposttags;
 	}
+	
+	add_filter( 'wp_kses_allowed_html', 'qode_optimizer_framework_extend_wp_kses_allowed_html', 10, 2 );
 }
 
 if ( ! function_exists( 'qode_optimizer_framework_get_page_id' ) ) {

@@ -108,52 +108,6 @@ class Qode_Optimizer_Images {
 	}
 
 	/**
-	 * Multiple image adding watermark
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function multiple_add_watermark() {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$unique_file_list = array();
-
-		if ( ! empty( $this->files ) ) {
-			$output->set_param( 'success', true );
-			foreach ( $this->files as $file ) {
-				if ( $file instanceof Qode_Optimizer_Image ) {
-					$single_file_output = new Qode_Optimizer_Output();
-					$single_file_output->set_param( 'file', false );
-
-					if ( ! array_key_exists( $file->file, $unique_file_list ) ) {
-						$single_file_output              = $file->add_watermark();
-						$unique_file_list[ $file->file ] = clone $single_file_output;
-					} elseif ( $unique_file_list[ $file->file ] instanceof Qode_Optimizer_Output ) {
-						$single_file_output = clone $unique_file_list[ $file->file ];
-						$single_file_output->set_param( 'media_size', $file->media_size );
-
-						$system_log->add_log( 'File to watermark: ' . wp_basename( $file->file ) );
-						$system_log->add_log( 'Watermarking was skipped due to image was already watermarked' );
-					}
-
-					$all_files_params   = $output->get_param( 'files' );
-					$all_files_params[] = $single_file_output;
-					$output->set_param( 'files', $all_files_params );
-
-					if ( $output->get_param( 'success' ) && ! $single_file_output->get_param( 'success' ) ) {
-						$output->set_param( 'success', false );
-					}
-				}
-			}
-		}
-
-		return $output;
-	}
-
-	/**
 	 * Multiple webP image conversion
 	 *
 	 * @param array $conversion_methods_queue List of methods for trying to create WebP image with, if one fails system tries another one from the list
@@ -247,62 +201,6 @@ class Qode_Optimizer_Images {
 
 					if ( $output->get_param( 'success' ) ) {
 						$output->set_param( 'success', $single_file_output->get_param( 'success' ) );
-					}
-				}
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Multiple image conversion
-	 *
-	 * @param array $conversion_methods_queue List of methods for trying to convert image with, if one fails system tries another one from the list
-	 *
-	 * @return Qode_Optimizer_Output
-	 */
-	public function multiple_convert( $conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' ) ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		if ( ! is_array( $conversion_methods_queue ) ) {
-			$conversion_methods_queue = array( 'gmagick', 'imagick', 'gd' );
-		}
-
-		$output = new Qode_Optimizer_Output();
-		$output->set_param( 'files', array() );
-		$output->set_param( 'success', false );
-
-		$unique_file_list = array();
-
-		if ( ! empty( $this->files ) ) {
-			$output->set_param( 'success', true );
-			foreach ( $this->files as $file ) {
-				if ( $file instanceof Qode_Optimizer_Image ) {
-					$single_file_output = new Qode_Optimizer_Output();
-					$single_file_output->set_param( 'file', false );
-
-					try {
-						if ( ! array_key_exists( $file->file, $unique_file_list ) ) {
-							$single_file_output              = $file->convert( $conversion_methods_queue );
-							$unique_file_list[ $file->file ] = clone $single_file_output;
-						} elseif ( $unique_file_list[ $file->file ] instanceof Qode_Optimizer_Output ) {
-							$single_file_output = clone $unique_file_list[ $file->file ];
-							$single_file_output->set_param( 'media_size', $file->media_size );
-
-							$system_log->add_log( 'File to convert: ' . wp_basename( $file->file ) );
-							$system_log->add_log( 'Conversion was skipped due to image was already converted' );
-						}
-					} catch ( Exception $exception ) {
-						$system_log->add_log( 'Some error occurred during a process of converting multiple images' );
-					}
-
-					$all_files_params   = $output->get_param( 'files' );
-					$all_files_params[] = $single_file_output;
-					$output->set_param( 'files', $all_files_params );
-
-					if ( $output->get_param( 'success' ) && ! $single_file_output->get_param( 'file' ) ) {
-						$output->set_param( 'success', false );
 					}
 				}
 			}

@@ -57,6 +57,8 @@ class Qode_Optimizer_Parser {
 		if ( $activate_buffer ) {
 			// Start an output buffer before any output starts.
 			add_action( 'template_redirect', array( $this, 'activate_buffer' ), 0 );
+			// End an output buffer after output ends.
+			add_action( 'wp_after_load_template', array( $this, 'deactivate_buffer' ), 1000 );
 		}
 	}
 
@@ -68,7 +70,14 @@ class Qode_Optimizer_Parser {
 	}
 
 	/**
-	 * Run the page through any registered EWWW IO filters.
+	 * Ends an output buffer after process of WebP replacement ends
+	 */
+	public function deactivate_buffer() {
+		ob_end_flush();
+	}
+
+	/**
+	 * Run the page through any registered IO filters.
 	 *
 	 * @param string $buffer The full HTML page generated since the output buffer was started.
 	 * @return string The altered buffer containing the full page with WebP images inserted.

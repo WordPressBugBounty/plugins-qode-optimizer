@@ -49,6 +49,8 @@ if ( class_exists( 'Qode_Optimizer_Admin_Sub_Pages' ) ) {
 				/*
 				 * we need to include UI Dialog styles
 				 */
+				wp_enqueue_style( 'wp-jquery-ui-dialog' );
+
 				wp_enqueue_script( 'jquery-ui-core' );
 				wp_enqueue_script( 'jquery-ui-dialog' );
 				wp_enqueue_script( 'qode-optimizer', QODE_OPTIMIZER_ADMIN_URL_PATH . '/inc/admin-pages/sub-pages/utilities/assets/js/utilities.min.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ), QODE_OPTIMIZER_VERSION, true );

@@ -2016,6 +2016,8 @@
 					}
 				);
 			}
+
+			qodefPopupModal.init();
 		},
 		ajaxOptionsAddDescription: function ( options, $titleHolder, $descriptionHolder, $sourceHolder ) {
 
@@ -2024,7 +2026,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'options_action_ajax_option_add_description',
+						action: 'qode_optimizer_options_action_ajax_option_add_description',
 						options: options,
 					},
 					success: function ( data ) {
@@ -2078,7 +2080,7 @@
 					type: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'options_action_ajax_option_action',
+						action: 'qode_optimizer_options_action_ajax_option_action',
 						options: options,
 					},
 					success: function ( data ) {

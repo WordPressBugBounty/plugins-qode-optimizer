@@ -18,7 +18,7 @@ class Qode_Optimizer_Issue {
 	public function init() {
 		// Ajax calls.
 		if ( Qode_Optimizer_User::is_admin() ) {
-			add_action( 'wp_ajax_issue_action_optimization_history_issues_resolve', array( $this, 'handle_optimization_history_issues_resolve' ) );
+			add_action( 'wp_ajax_qode_optimizer_issue_action_optimization_history_issues_resolve', array( $this, 'handle_optimization_history_issues_resolve' ) );
 		}
 	}
 

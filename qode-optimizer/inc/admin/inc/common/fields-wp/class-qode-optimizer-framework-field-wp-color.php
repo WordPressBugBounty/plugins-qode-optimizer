@@ -16,7 +16,7 @@ class Qode_Optimizer_Framework_Field_WP_Color extends Qode_Optimizer_Framework_F
 
 	public function render_field() {
 		?>
-		<input type="text" name="<?php echo esc_attr( $this->name ); ?>" id="<?php echo esc_attr( $this->params['id'] ); ?>" value="<?php echo esc_attr( $this->params['value'] ); ?>" data-alpha="true" class="qodef-color-field"/>
+		<input type="text" name="<?php echo esc_attr( $this->name ); ?>" id="<?php echo esc_attr( $this->params['id'] ); ?>" value="<?php echo esc_attr( $this->params['value'] ); ?>" data-alpha-enabled="true" class="qodef-color-field"/>
 		<?php
 	}
 }

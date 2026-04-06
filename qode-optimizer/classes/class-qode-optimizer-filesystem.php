@@ -19,12 +19,28 @@ class Qode_Optimizer_Filesystem {
 
 	/**
 	 * Qode_Optimizer_Filesystem constructor
+	 *
+	 * @param bool $with_permissions
 	 */
-	public function __construct() {
+	public function __construct( $with_permissions = false ) {
 		// WP filesystem initialization.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
 
+		if ( $with_permissions ) {
+			$this->set_file_permissions();
+		}
+
+		// Our own filesystem instance definition.
+		$this->wpfilesystem = new WP_Filesystem_Direct( '' );
+	}
+
+	/**
+	 * Set file permissions
+	 *
+	 * @return void
+	 */
+	public function set_file_permissions() {
 		// Permission constants definition.
 		if ( ! defined( 'FS_CHMOD_DIR' ) ) {
 			define( 'FS_CHMOD_DIR', ( fileperms( ABSPATH ) & 0777 | 0755 ) );
@@ -33,9 +49,6 @@ class Qode_Optimizer_Filesystem {
 		if ( ! defined( 'FS_CHMOD_FILE' ) ) {
 			define( 'FS_CHMOD_FILE', ( fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 ) );
 		}
-
-		// Our own filesystem instance definition.
-		$this->wpfilesystem = new WP_Filesystem_Direct( '' );
 	}
 
 	/**

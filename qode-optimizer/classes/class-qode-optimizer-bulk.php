@@ -18,11 +18,8 @@ class Qode_Optimizer_Bulk {
 	public function init() {
 		// Ajax calls.
 		if ( Qode_Optimizer_User::is_admin() ) {
-			add_action( 'wp_ajax_bulk_action_optimize_and_webp', array( $this, 'handle_bulk_optimization_and_webp_creation' ) );
-			add_action( 'wp_ajax_bulk_action_folders_optimize_and_webp', array( $this, 'handle_bulk_folders_optimization_and_webp_creation' ) );
-			add_action( 'wp_ajax_bulk_action_thumbs_regenerate', array( $this, 'handle_bulk_thumbs_regeneration' ) );
-			add_action( 'wp_ajax_bulk_action_restore', array( $this, 'handle_bulk_restoration' ) );
-			add_action( 'wp_ajax_bulk_action_folders_restore', array( $this, 'handle_bulk_folders_restoration' ) );
+			add_action( 'wp_ajax_qode_optimizer_bulk_action_optimize_and_webp', array( $this, 'handle_bulk_optimization_and_webp_creation' ) );
+			add_action( 'wp_ajax_qode_optimizer_bulk_action_folders_optimize_and_webp', array( $this, 'handle_bulk_folders_optimization_and_webp_creation' ) );
 		}
 	}
 
@@ -151,9 +148,13 @@ class Qode_Optimizer_Bulk {
 			}
 
 			if ( $image ) {
-				if ( Qode_Optimizer_Options::get_option( 'watermark_image_path' ) ) {
+				if (
+					qode_optimizer_is_installed( 'optimizer-premium' ) &&
+					Qode_OptimizerPremium_Image_Watermarker::enabled()
+				) {
 
-					$output_watermarked = $image->image_and_thumbs_add_watermark();
+					$image_watermarker = new Qode_OptimizerPremium_Image_Watermarker($image);
+					$output_watermarked = $image_watermarker->image_and_thumbs_add_watermark();
 
 					if ( $output_watermarked->get_param( 'success' ) ) {
 						$output->set_param( 'watermarked_files', $output_watermarked->get_param( 'files' ) );
@@ -195,61 +196,69 @@ class Qode_Optimizer_Bulk {
 				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
 
 				// Additional conversion and optimization, if conversion is set in admin options.
-				$convert_options = Qode_Optimizer_Options::get_convert_options();
-				if ( 'yes' === $convert_options[ $image::MIME_TYPE ] ) {
+				if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+					$convert_options = Qode_OptimizerPremium_Options::get_convert_options();
+					if ( 'yes' === $convert_options[ $image::MIME_TYPE ] ) {
 
-					$image = Qode_Optimizer_Image_Factory::create(
-						array(
-							'id'         => $id,
-							'media_size' => 'original',
-						)
-					);
-					if ( $image ) {
-						$output_conversion = $image->image_and_thumbs_convert();
+						$image = Qode_Optimizer_Image_Factory::create(
+							array(
+								'id'         => $id,
+								'media_size' => 'original',
+							)
+						);
+						if ( $image ) {
+							$image_converter = Qode_OptimizerPremium_Image_Converter_Factory::create( $image );
+							if ( $image_converter ) {
+								$output_conversion = $image_converter->image_and_thumbs_convert();
 
-						if ( $output_conversion->get_param( 'success' ) ) {
-							$output->set_param( 'conversion_files', $output_conversion->get_param( 'files' ) );
-						} else {
-							$output->set_param( 'original_file', $output_conversion->get_param( 'original_file' ) );
-							$output->set_param( 'initial_size_raw', $output_conversion->get_param( 'initial_size_raw' ) );
-							$output->set_param( 'initial_size', $output_conversion->get_param( 'initial_size' ) );
-							$output->set_param( 'conversion_result', $output_conversion->get_param( 'result' ) );
-						}
-
-						$output->set_param( 'conversion_success', $output_conversion->get_param( 'success' ) );
-
-						// Elapsed time checkpoint.
-						$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-
-						// Additional optimization only if conversion is successful.
-						if ( $output->get_param( 'conversion_success' ) ) {
-							$image = Qode_Optimizer_Image_Factory::create(
-								array(
-									'id'         => $id,
-									'media_size' => 'original',
-									'additional_compression' => true,
-								)
-							);
-							if ( $image ) {
-								$output_optimization2 = $image->image_and_thumbs_optimize();
-
-								if ( $output_optimization2->get_param( 'success' ) ) {
-									$output->set_param( 'optimization2_files', $output_optimization2->get_param( 'files' ) );
+								if ( $output_conversion->get_param( 'success' ) ) {
+									$output->set_param( 'conversion_files', $output_conversion->get_param( 'files' ) );
 								} else {
-									$output->set_param( 'original_file', $output_optimization2->get_param( 'original_file' ) );
-									$output->set_param( 'initial_size_raw', $output_optimization2->get_param( 'initial_size_raw' ) );
-									$output->set_param( 'initial_size', $output_optimization2->get_param( 'initial_size' ) );
-									$output->set_param( 'optimization2_result', $output_optimization2->get_param( 'result' ) );
+									$output->set_param( 'original_file', $output_conversion->get_param( 'original_file' ) );
+									$output->set_param( 'initial_size_raw', $output_conversion->get_param( 'initial_size_raw' ) );
+									$output->set_param( 'initial_size', $output_conversion->get_param( 'initial_size' ) );
+									$output->set_param( 'conversion_result', $output_conversion->get_param( 'result' ) );
 								}
 
-								$output->set_param( 'optimization2_success', $output_optimization2->get_param( 'success' ) );
+								$output->set_param( 'conversion_success', $output_conversion->get_param( 'success' ) );
 
 								// Elapsed time checkpoint.
 								$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
+
+								// Additional optimization only if conversion is successful.
+								if ( $output->get_param( 'conversion_success' ) ) {
+									$image = Qode_Optimizer_Image_Factory::create(
+										array(
+											'id'                     => $id,
+											'media_size'             => 'original',
+											'additional_compression' => true,
+										)
+									);
+									if ( $image ) {
+										$output_optimization2 = $image->image_and_thumbs_optimize();
+
+										if ( $output_optimization2->get_param( 'success' ) ) {
+											$output->set_param( 'optimization2_files', $output_optimization2->get_param( 'files' ) );
+										} else {
+											$output->set_param( 'original_file', $output_optimization2->get_param( 'original_file' ) );
+											$output->set_param( 'initial_size_raw', $output_optimization2->get_param( 'initial_size_raw' ) );
+											$output->set_param( 'initial_size', $output_optimization2->get_param( 'initial_size' ) );
+											$output->set_param( 'optimization2_result', $output_optimization2->get_param( 'result' ) );
+										}
+
+										$output->set_param( 'optimization2_success', $output_optimization2->get_param( 'success' ) );
+
+										// Elapsed time checkpoint.
+										$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
+									}
+								} else {
+									$output->set_param( 'optimization2_skipped', true );
+								}
 							}
-						} else {
-							$output->set_param( 'optimization2_skipped', true );
 						}
+					} else {
+						$output->set_param( 'conversion_skipped', true );
+						$output->set_param( 'optimization2_skipped', true );
 					}
 				} else {
 					$output->set_param( 'conversion_skipped', true );
@@ -437,9 +446,13 @@ class Qode_Optimizer_Bulk {
 			}
 
 			if ( $image ) {
-				if ( Qode_Optimizer_Options::get_option( 'watermark_image_path' ) ) {
+				if (
+					qode_optimizer_is_installed( 'optimizer-premium' ) &&
+					Qode_OptimizerPremium_Image_Watermarker::enabled()
+				) {
 
-					$output_watermarked = $image->folders_image_add_watermark();
+					$image_watermarker = new Qode_OptimizerPremium_Image_Watermarker($image);
+					$output_watermarked = $image_watermarker->folders_image_add_watermark();
 
 					if ( $output_watermarked->get_param( 'success' ) ) {
 						$output->set_param( 'watermarked_files', $output_watermarked->get_param( 'files' ) );
@@ -481,68 +494,76 @@ class Qode_Optimizer_Bulk {
 				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
 
 				// Additional conversion and optimization, if conversion is set in admin options.
-				$convert_options = Qode_Optimizer_Options::get_convert_options();
-				if ( 'yes' === $convert_options[ $image::MIME_TYPE ] ) {
+				if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+					$convert_options = Qode_OptimizerPremium_Options::get_convert_options();
+					if ( 'yes' === $convert_options[ $image::MIME_TYPE ] ) {
 
-					$image = Qode_Optimizer_Image_Factory::create(
-						array(
-							'file'       => $path,
-							'media_size' => 'folders',
-						)
-					);
-					if ( $image ) {
-						$output_conversion = $image->folders_image_convert();
+						$image = Qode_Optimizer_Image_Factory::create(
+							array(
+								'file'       => $path,
+								'media_size' => 'folders',
+							)
+						);
+						if ( $image ) {
+							$image_converter = Qode_OptimizerPremium_Image_Converter_Factory::create( $image );
+							if ( $image_converter ) {
+								$output_conversion = $image_converter->folders_image_convert();
 
-						if ( $output_conversion->get_param( 'success' ) ) {
-							$files = $output_conversion->get_param( 'files' );
-							$output->set_param( 'conversion_files', $files );
+								if ( $output_conversion->get_param( 'success' ) ) {
+									$files = $output_conversion->get_param( 'files' );
+									$output->set_param( 'conversion_files', $files );
 
-							// PATH change, after conversion.
-							$file = $files[0];
-							if ( $file instanceof Qode_Optimizer_Output ) {
-								$path = $file->get_param( 'file' );
-							}
-						} else {
-							$output->set_param( 'original_file', $output_conversion->get_param( 'original_file' ) );
-							$output->set_param( 'initial_size_raw', $output_conversion->get_param( 'initial_size_raw' ) );
-							$output->set_param( 'initial_size', $output_conversion->get_param( 'initial_size' ) );
-							$output->set_param( 'conversion_result', $output_conversion->get_param( 'result' ) );
-						}
-
-						$output->set_param( 'conversion_success', $output_conversion->get_param( 'success' ) );
-
-						// Elapsed time checkpoint.
-						$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-
-						// Additional optimization only if conversion is successful.
-						if ( $output->get_param( 'conversion_success' ) ) {
-							$image = Qode_Optimizer_Image_Factory::create(
-								array(
-									'file'       => $path,
-									'media_size' => 'folders',
-									'additional_compression' => true,
-								)
-							);
-							if ( $image ) {
-								$output_optimization2 = $image->folders_image_optimize();
-
-								if ( $output_optimization2->get_param( 'success' ) ) {
-									$output->set_param( 'optimization2_files', $output_optimization2->get_param( 'files' ) );
+									// PATH change, after conversion.
+									$file = $files[0];
+									if ( $file instanceof Qode_Optimizer_Output ) {
+										$path = $file->get_param( 'file' );
+									}
 								} else {
-									$output->set_param( 'original_file', $output_optimization2->get_param( 'original_file' ) );
-									$output->set_param( 'initial_size_raw', $output_optimization2->get_param( 'initial_size_raw' ) );
-									$output->set_param( 'initial_size', $output_optimization2->get_param( 'initial_size' ) );
-									$output->set_param( 'optimization2_result', $output_optimization2->get_param( 'result' ) );
+									$output->set_param( 'original_file', $output_conversion->get_param( 'original_file' ) );
+									$output->set_param( 'initial_size_raw', $output_conversion->get_param( 'initial_size_raw' ) );
+									$output->set_param( 'initial_size', $output_conversion->get_param( 'initial_size' ) );
+									$output->set_param( 'conversion_result', $output_conversion->get_param( 'result' ) );
 								}
 
-								$output->set_param( 'optimization2_success', $output_optimization2->get_param( 'success' ) );
+								$output->set_param( 'conversion_success', $output_conversion->get_param( 'success' ) );
 
 								// Elapsed time checkpoint.
 								$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
+
+								// Additional optimization only if conversion is successful.
+								if ( $output->get_param( 'conversion_success' ) ) {
+									$image = Qode_Optimizer_Image_Factory::create(
+										array(
+											'file'                   => $path,
+											'media_size'             => 'folders',
+											'additional_compression' => true,
+										)
+									);
+									if ( $image ) {
+										$output_optimization2 = $image->folders_image_optimize();
+
+										if ( $output_optimization2->get_param( 'success' ) ) {
+											$output->set_param( 'optimization2_files', $output_optimization2->get_param( 'files' ) );
+										} else {
+											$output->set_param( 'original_file', $output_optimization2->get_param( 'original_file' ) );
+											$output->set_param( 'initial_size_raw', $output_optimization2->get_param( 'initial_size_raw' ) );
+											$output->set_param( 'initial_size', $output_optimization2->get_param( 'initial_size' ) );
+											$output->set_param( 'optimization2_result', $output_optimization2->get_param( 'result' ) );
+										}
+
+										$output->set_param( 'optimization2_success', $output_optimization2->get_param( 'success' ) );
+
+										// Elapsed time checkpoint.
+										$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
+									}
+								} else {
+									$output->set_param( 'optimization2_skipped', true );
+								}
 							}
-						} else {
-							$output->set_param( 'optimization2_skipped', true );
 						}
+					} else {
+						$output->set_param( 'conversion_skipped', true );
+						$output->set_param( 'optimization2_skipped', true );
 					}
 				} else {
 					$output->set_param( 'conversion_skipped', true );
@@ -599,228 +620,6 @@ class Qode_Optimizer_Bulk {
 				qode_optimizer_get_ajax_status( 'success', esc_html__( 'All images optimized successfully', 'qode-optimizer' ), $output );
 			} else {
 				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Some/all images were not optimized', 'qode-optimizer' ), $output );
-			}
-		}
-	}
-
-	/**
-	 * Ajax - bulk thumbnails regeneration process
-	 */
-	public function handle_bulk_thumbs_regeneration() {
-
-		if ( ! Qode_Optimizer_User::is_admin() ) {
-			wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-		}
-
-		if ( isset( $_POST ) && ! empty( $_POST ) ) {
-
-			if (
-				empty( $_POST['options']['qo_nonce'] ) ||
-				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
-			) {
-				if ( ! wp_doing_ajax() ) {
-					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-				}
-
-				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
-			}
-
-			$output = new Qode_Optimizer_Output();
-			$output->set_param( 'success', false );
-			$output->set_param( 'elapsed_time', false );
-
-			$id = 0;
-			if ( ! empty( $_POST['options']['id'] ) ) {
-				$id = intval( $_POST['options']['id'] );
-			}
-
-			$system_log = Qode_Optimizer_Log::get_instance();
-			$system_log->add_log( '', true );
-			$system_log->add_log( 'BULK AUTOMATIC THUMB REGENERATION', true );
-
-			$current_time        = microtime( true );
-			$elapsed_time_params = array(
-				'current' => $current_time,
-				'local'   => 0.0,
-				'total'   => 0.0,
-			);
-
-			$image = Qode_Optimizer_Image_Factory::create(
-				array(
-					'id'         => $id,
-					'media_size' => 'original',
-				)
-			);
-			if ( $image ) {
-
-				$system_log->add_log( 'Image: ' . wp_basename( $image->file ), true );
-				$system_log->add_log( '', true );
-
-				$output = $image->regenerate_thumbs();
-
-				// Elapsed time checkpoint.
-				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-			}
-
-			$total_elapsed_time = number_format( $elapsed_time_params['total'], 4 );
-
-			$output->set_param( 'elapsed_time', $total_elapsed_time . 's' );
-
-			$system_log->add_log( 'Total elapsed time: ' . $total_elapsed_time . 's', true );
-
-			$system_log->write_log();
-
-			if ( $output->get_param( 'success' ) ) {
-				qode_optimizer_get_ajax_status( 'success', esc_html__( 'Success', 'qode-optimizer' ), $output );
-			} else {
-				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Failure', 'qode-optimizer' ), $output );
-			}
-		}
-	}
-
-	/**
-	 * Ajax - bulk image restoration process
-	 */
-	public function handle_bulk_restoration() {
-
-		if ( ! Qode_Optimizer_User::is_admin() ) {
-			wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-		}
-
-		if ( isset( $_POST ) && ! empty( $_POST ) ) {
-
-			if (
-				empty( $_POST['options']['qo_nonce'] ) ||
-				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
-			) {
-				if ( ! wp_doing_ajax() ) {
-					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-				}
-
-				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
-			}
-
-			$output = new Qode_Optimizer_Output();
-			$output->set_param( 'success', false );
-			$output->set_param( 'elapsed_time', false );
-
-			$id = 0;
-			if ( ! empty( $_POST['options']['id'] ) ) {
-				$id = intval( $_POST['options']['id'] );
-			}
-
-			$system_log = Qode_Optimizer_Log::get_instance();
-			$system_log->add_log( '', true );
-			$system_log->add_log( 'BULK AUTOMATIC RESTORATION', true );
-
-			$current_time        = microtime( true );
-			$elapsed_time_params = array(
-				'current' => $current_time,
-				'local'   => 0.0,
-				'total'   => 0.0,
-			);
-
-			$image = Qode_Optimizer_Image_Factory::create(
-				array(
-					'id'         => $id,
-					'media_size' => 'original',
-				)
-			);
-			if ( $image ) {
-
-				$system_log->add_log( 'Image: ' . wp_basename( $image->file ), true );
-				$system_log->add_log( '', true );
-
-				$output = $image->image_and_thumbs_restore();
-
-				// Elapsed time checkpoint.
-				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-			}
-
-			$total_elapsed_time = number_format( $elapsed_time_params['total'], 4 );
-
-			$output->set_param( 'elapsed_time', $total_elapsed_time . 's' );
-
-			$system_log->add_log( 'Total elapsed time: ' . $total_elapsed_time . 's', true );
-
-			$system_log->write_log();
-
-			if ( $output->get_param( 'success' ) ) {
-				qode_optimizer_get_ajax_status( 'success', esc_html__( 'Success', 'qode-optimizer' ), $output );
-			} else {
-				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Failure', 'qode-optimizer' ), $output );
-			}
-		}
-	}
-
-	/**
-	 * Ajax - bulk folders image restoration process
-	 */
-	public function handle_bulk_folders_restoration() {
-
-		if ( ! Qode_Optimizer_User::is_admin() ) {
-			wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-		}
-
-		if ( isset( $_POST ) && ! empty( $_POST ) ) {
-
-			if (
-				empty( $_POST['options']['qo_nonce'] ) ||
-				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
-			) {
-				if ( ! wp_doing_ajax() ) {
-					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-				}
-
-				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
-			}
-
-			$output = new Qode_Optimizer_Output();
-			$output->set_param( 'success', false );
-			$output->set_param( 'elapsed_time', false );
-
-			$path = ! empty( $_POST['options']['path'] ) ? sanitize_text_field( wp_unslash( $_POST['options']['path'] ) ) : '';
-
-			$system_log = Qode_Optimizer_Log::get_instance();
-			$system_log->add_log( '', true );
-			$system_log->add_log( 'BULK AUTOMATIC RESTORATION', true );
-
-			$current_time        = microtime( true );
-			$elapsed_time_params = array(
-				'current' => $current_time,
-				'local'   => 0.0,
-				'total'   => 0.0,
-			);
-
-			$image = Qode_Optimizer_Image_Factory::create(
-				array(
-					'file'       => $path,
-					'media_size' => 'folders',
-				)
-			);
-			if ( $image ) {
-
-				$system_log->add_log( 'Image: ' . wp_basename( $image->file ), true );
-				$system_log->add_log( '', true );
-
-				$output = $image->folders_image_restore();
-
-				// Elapsed time checkpoint.
-				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-			}
-
-			$total_elapsed_time = number_format( $elapsed_time_params['total'], 4 );
-
-			$output->set_param( 'elapsed_time', $total_elapsed_time . 's' );
-
-			$system_log->add_log( 'Total elapsed time: ' . $total_elapsed_time . 's', true );
-
-			$system_log->write_log();
-
-			if ( $output->get_param( 'success' ) ) {
-				qode_optimizer_get_ajax_status( 'success', esc_html__( 'Success', 'qode-optimizer' ), $output );
-			} else {
-				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Failure', 'qode-optimizer' ), $output );
 			}
 		}
 	}

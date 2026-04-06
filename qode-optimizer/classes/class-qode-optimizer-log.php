@@ -31,7 +31,7 @@ class Qode_Optimizer_Log {
 	 *
 	 * @var string $log_file
 	 */
-	private $log_file = QODE_OPTIMIZER_LOGS_FOLDER_PATH . DIRECTORY_SEPARATOR . 'log.txt';
+	private $log_file = '';
 
 	/**
 	 * Gets current log instance
@@ -55,11 +55,23 @@ class Qode_Optimizer_Log {
 		add_action( 'admin_action_qode_optimizer_delete_system_log', array( $this, 'delete_system_log' ) );
 	}
 
+	protected function set_default_log_folder() {
+		$upload  = wp_upload_dir();
+		$log_dir = $upload['basedir'] . DIRECTORY_SEPARATOR . QODE_OPTIMIZER_EXTERNAL_LOGS_RELATIVE_FOLDER_PATH;
+		if ( ! is_dir( $log_dir ) ) {
+			wp_mkdir_p( $log_dir );
+		}
+
+		$this->log_file = $log_dir . DIRECTORY_SEPARATOR . 'log.txt';
+	}
+
 	/**
 	 * Qode_Optimizer_Log constructor
 	 */
 	public function __construct() {
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$this->set_default_log_folder();
+
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if ( ! $filesystem->is_file( $this->log_file ) ) {
 			// alternative for PHP native touch function.
@@ -213,7 +225,7 @@ class Qode_Optimizer_Log {
 	public function delete_system_log() {
 		if ( current_user_can( 'activate_plugins' ) ) {
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			if (
 				$filesystem->is_file( $this->log_file ) &&

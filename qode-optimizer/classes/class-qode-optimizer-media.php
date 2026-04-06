@@ -16,24 +16,29 @@ class Qode_Optimizer_Media {
 	 * Initialization
 	 */
 	public function init() {
+		add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 		add_filter( 'manage_media_columns', array( $this, 'manage_media_columns' ) );
 		add_action( 'manage_media_custom_column', array( $this, 'add_media_custom_column' ), 10, 2 );
-		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'handle_image_sizes_advanced' ) );
-		add_filter( 'wp_handle_upload', array( $this, 'handle_media_upload' ) );
-		add_filter( 'wp_generate_attachment_metadata', array( $this, 'handle_media_thumb_creation' ), 1000, 2 );
 		add_action( 'delete_attachment', array( $this, 'handle_media_delete' ), 1000 );
 
 		// Ajax calls.
 		if ( Qode_Optimizer_User::is_admin() ) {
-			add_action( 'wp_ajax_media_init_action_buttons_and_info', array( $this, 'ajax_init_action_buttons_and_info' ) );
-			add_action( 'wp_ajax_media_include_action_buttons', array( $this, 'include_action_buttons' ) );
-			add_action( 'wp_ajax_media_action_should_be_converted', array( $this, 'handle_media_should_be_converted' ) );
-			add_action( 'wp_ajax_media_action_optimize_process', array( $this, 'handle_media_optimization_process' ) );
-			add_action( 'wp_ajax_media_action_restore', array( $this, 'handle_media_restoration' ) );
-			add_action( 'wp_ajax_media_action_regenerate', array( $this, 'handle_media_regeneration' ) );
-			add_action( 'wp_ajax_media_action_add_watermark', array( $this, 'handle_media_adding_watermark' ) );
-			add_action( 'wp_ajax_media_action_recover', array( $this, 'handle_media_recover' ) );
+			add_action( 'wp_ajax_qode_optimizer_media_init_action_buttons_and_info', array( $this, 'ajax_init_action_buttons_and_info' ) );
+			add_action( 'wp_ajax_qode_optimizer_media_include_action_buttons', array( $this, 'include_action_buttons' ) );
+			add_action( 'wp_ajax_qode_optimizer_media_action_optimize_process', array( $this, 'handle_media_optimization_process' ) );
+			add_action( 'wp_ajax_qode_optimizer_media_action_restore', array( $this, 'handle_media_restoration' ) );
+			add_action( 'wp_ajax_qode_optimizer_media_action_regenerate', array( $this, 'handle_media_regeneration' ) );
+			add_action( 'wp_ajax_qode_optimizer_media_action_recover', array( $this, 'handle_media_recover' ) );
 		}
+	}
+
+	/**
+	 * Add custom div with data nonce attribute right after all media templates are rendered.
+	 */
+	public function print_media_templates() {
+		$qo_nonce = wp_create_nonce( 'qo-nonce' );
+
+		echo '<div id="qode-optimizer-custom-nonce-container" data-qo-nonce="' . esc_html( $qo_nonce ) . '"></div>';
 	}
 
 	/**
@@ -54,11 +59,11 @@ class Qode_Optimizer_Media {
 	/**
 	 * Add custom column in the media library
 	 *
-	 * @global object $wpdb
-	 *
 	 * @param string $column_name Custom column name
 	 * @param int $id Image ID
-	 **/
+	 **@global object $wpdb
+	 *
+	 */
 	public function add_media_custom_column( $column_name, $id ) {
 		if (
 			Qode_Optimizer_User::is_admin() &&
@@ -69,188 +74,8 @@ class Qode_Optimizer_Media {
 
 			$html = $this->init_action_buttons_and_info( $id );
 
-			echo qode_optimizer_framework_wp_kses_html( 'html', $html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_kses_post( $html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
-	}
-
-	/**
-	 * Filters the image sizes automatically generated when uploading an image
-	 *
-	 * @param array $sizes Associative array of image sizes to be created
-	 *
-	 * @return array $sizes Associative array of image sizes to be created
-	 */
-	public function handle_image_sizes_advanced( $sizes ) {
-		$disabled_sizes = Qode_Optimizer_Options::get_option( 'disable_image_creation' );
-
-		if ( ! is_array( $disabled_sizes ) ) {
-			$disabled_sizes = array();
-		}
-
-		return array_diff_key( $sizes, array_flip( $disabled_sizes ) );
-	}
-
-	/**
-	 * During an upload, handles resizing, auto-rotation, and sets the 'new_image' global.
-	 *
-	 * @global bool $ewww_new_image True if there is a new image being uploaded.
-	 *
-	 * @param array $params Parameters related to the file being uploaded.
-	 * @return array The unaltered parameters, we only need to read them.
-	 *
-	 * @throws ImagickException Throws ImagickException on error.
-	 */
-	public function handle_media_upload( $params ) {
-		if (
-			empty( $params['file'] ) &&
-			empty( $params['tmp_name'] )
-		) {
-			return $params;
-		}
-
-		$file = ! empty( $params['file'] ) ? $params['file'] : $params['tmp_name'];
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if (
-			! $filesystem->is_file( $file ) ||
-			! $filesystem->filesize( $file )
-		) {
-			clearstatcache();
-			return $params;
-		}
-
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$uploaded_image = Qode_Optimizer_Image_Factory::create(
-			array(
-				'file'       => $file,
-				'media_size' => 'original',
-			)
-		);
-		if (
-			$uploaded_image &&
-			'yes' === $uploaded_image->enable_automatic_image_optimization
-		) {
-			$system_log->add_log( '', true );
-			$system_log->add_log( 'MEDIA AUTOMATIC OPTIMIZATION AFTER UPLOAD', true );
-
-			$system_log->add_log( 'Image: ' . wp_basename( $uploaded_image->file ), true );
-			$system_log->add_log( '', true );
-
-			// Do ONLY resize, without compression.
-			$uploaded_image->optimize( false, true );
-		}
-
-		return $params;
-	}
-
-	/**
-	 * Automatically optimize image thumbnails if proper option is enabled
-	 *
-	 * @param array $metadata image metadata
-	 * @param int $attachment_id image id
-	 *
-	 * @return array updated image metadata
-	 */
-	public function handle_media_thumb_creation( $metadata, $attachment_id ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$uploaded_image = Qode_Optimizer_Image_Factory::create(
-			array(
-				'id'         => $attachment_id,
-				'media_size' => 'original',
-			)
-		);
-		if (
-			$uploaded_image &&
-			'yes' === $uploaded_image->enable_automatic_image_optimization
-		) {
-			$current_time        = microtime( true );
-			$elapsed_time_params = array(
-				'current' => $current_time,
-				'local'   => 0.0,
-				'total'   => 0.0,
-			);
-
-			if ( Qode_Optimizer_Options::get_option( 'watermark_image_path' ) ) {
-				$uploaded_image->image_and_thumbs_add_watermark();
-				$uploaded_image = Qode_Optimizer_Image_Factory::create(
-					array(
-						'id'         => $attachment_id,
-						'media_size' => 'original',
-					)
-				);
-
-				// Elapsed time checkpoint.
-				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-			}
-
-			$uploaded_image->image_and_thumbs_optimize();
-
-			// Elapsed time checkpoint.
-			$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-
-			// Additional conversion and optimization, if conversion is set in admin options.
-			$convert_options = Qode_Optimizer_Options::get_convert_options();
-			if ( 'yes' === $convert_options[ $uploaded_image::MIME_TYPE ] ) {
-
-				$uploaded_image = Qode_Optimizer_Image_Factory::create(
-					array(
-						'id'         => $attachment_id,
-						'media_size' => 'original',
-					)
-				);
-				if ( $uploaded_image ) {
-					$output_conversion = $uploaded_image->image_and_thumbs_convert();
-
-					// Elapsed time checkpoint.
-					$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-
-					// Additional optimization only if conversion is successful.
-					if ( $output_conversion->get_param( 'success' ) ) {
-						$uploaded_image = Qode_Optimizer_Image_Factory::create(
-							array(
-								'id'                     => $attachment_id,
-								'media_size'             => 'original',
-								'additional_compression' => true,
-							)
-						);
-						if ( $uploaded_image ) {
-							$uploaded_image->image_and_thumbs_optimize();
-
-							// Elapsed time checkpoint.
-							$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-						}
-					}
-				}
-			}
-
-			if ( 'yes' === Qode_Optimizer_Options::get_option( 'enable_webp_creation' ) ) {
-				$uploaded_image = Qode_Optimizer_Image_Factory::create(
-					array(
-						'id'         => $attachment_id,
-						'media_size' => 'original',
-					)
-				);
-				if ( $uploaded_image ) {
-					$uploaded_image->image_and_thumbs_create_webp();
-
-					// Elapsed time checkpoint.
-					$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-				}
-			}
-
-			$metadata = $uploaded_image->metadata;
-
-			$total_elapsed_time = number_format( $elapsed_time_params['total'], 4 );
-
-			$system_log->add_log( 'Total elapsed time: ' . $total_elapsed_time . 's', true );
-
-			$system_log->write_log();
-		}
-
-		return $metadata;
 	}
 
 	/**
@@ -258,9 +83,10 @@ class Qode_Optimizer_Media {
 	 *
 	 * Removes any .webp images, backups from conversion, and removes related database records.
 	 *
+	 * @param int $attachment_id The id number for the attachment being deleted.
+	 *
 	 * @global object $wpdb
 	 *
-	 * @param int $attachment_id The id number for the attachment being deleted.
 	 */
 	public function handle_media_delete( $attachment_id ) {
 		$image = Qode_Optimizer_Image_Factory::create(
@@ -300,10 +126,9 @@ class Qode_Optimizer_Media {
 			$buttons['restore'] = '<a class="qodef-media-action-link qodef-restore-manual" href="#" data-id="' . esc_attr( $id ) . '" data-qo-nonce="' . esc_attr( $qo_nonce ) . '">' . __( 'Restore Original', 'qode-optimizer' ) . '</a>';
 		}
 
-		if (
-			'always' === Qode_Optimizer_Options::get_option( 'show_regenerate_link' ) ||
-			in_array( 'regenerate', $button_options, true )
-		) {
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			$buttons = Qode_OptimizerPremium_Utility::generate_regenerate_link( $buttons, $id, $qo_nonce );
+		} elseif ( in_array( 'regenerate', $button_options, true ) ) {
 			$buttons['regenerate'] = '<a class="qodef-media-action-link qodef-regenerate-manual" href="#" data-id="' . esc_attr( $id ) . '" data-qo-nonce="' . esc_attr( $qo_nonce ) . '">' . __( 'Regenerate Thumbnails', 'qode-optimizer' ) . '</a>';
 		}
 
@@ -311,8 +136,8 @@ class Qode_Optimizer_Media {
 			$buttons['recover'] = '<a class="qodef-media-action-link qodef-recover-manual" href="#" data-id="' . esc_attr( $id ) . '" data-qo-nonce="' . esc_attr( $qo_nonce ) . '">' . __( 'Try To Recover', 'qode-optimizer' ) . '</a>';
 		}
 
-		if ( in_array( 'watermark', $button_options, true ) ) {
-			$buttons['watermark'] = '<a class="qodef-media-action-link qodef-add-watermark-manual" href="#" data-id="' . esc_attr( $id ) . '" data-qo-nonce="' . esc_attr( $qo_nonce ) . '">' . __( 'Add Watermark', 'qode-optimizer' ) . '</a>';
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			$buttons = Qode_OptimizerPremium_Utility::generate_watermark_link( $buttons, $button_options, $id, $qo_nonce );
 		}
 
 		return $buttons;
@@ -502,9 +327,9 @@ class Qode_Optimizer_Media {
 			if ( ! empty( $warnings ) ) {
 				$html .= '<div class="qodef-media-warning-holder">';
 				if ( in_array( 'regeneration', $warnings, true ) ) {
-					$html              .= '<div class="qodef-warning">';
-					$html              .= '<span class="qodef-title">' . esc_html__( 'Regeneration Warning:', 'qode-optimizer' ) . '</span>';
-					$html              .= '<span class="qodef-value">';
+					$html               .= '<div class="qodef-warning">';
+					$html               .= '<span class="qodef-title">' . esc_html__( 'Regeneration Warning:', 'qode-optimizer' ) . '</span>';
+					$html               .= '<span class="qodef-value">';
 					$regenerate_warning = esc_html__( 'System detects this image was replaced manually, and regeneration process should be done. ', 'qode-optimizer' );
 					if ( in_array( 'scaled_only_changed', $warnings, true ) ) {
 						$regenerate_warning .= '<span class="qodef-warning-note">' . esc_html__( 'System also detects only scaled image was replaced, so in order for regeneration process to create valid images you need to replace the original image as well, as regeneration process is using that original image. ', 'qode-optimizer' ) . '</span>';
@@ -540,8 +365,15 @@ class Qode_Optimizer_Media {
 		 */
 		if ( isset( $_POST ) && ! empty( $_POST ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 
-			if ( ! wp_doing_ajax() ) {
-				wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
+			if (
+				empty( $_POST['options']['qo_nonce'] ) ||
+				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
+			) {
+				if ( ! wp_doing_ajax() ) {
+					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
+				}
+
+				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
 			}
 
 			$id = 0;
@@ -615,52 +447,6 @@ class Qode_Optimizer_Media {
 			} else {
 				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Fail', 'qode-optimizer' ), $output );
 			}
-		}
-	}
-
-	/**
-	 * Ajax - checks if image should be converted
-	 */
-	public function handle_media_should_be_converted() {
-
-		if ( ! Qode_Optimizer_User::is_admin() ) {
-			wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-		}
-
-		if ( isset( $_POST ) && ! empty( $_POST ) ) {
-
-			if (
-				empty( $_POST['options']['qo_nonce'] ) ||
-				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
-			) {
-				if ( ! wp_doing_ajax() ) {
-					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-				}
-
-				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
-			}
-
-			$id = 0;
-			if ( ! empty( $_POST['options']['id'] ) ) {
-				$id = intval( $_POST['options']['id'] );
-			}
-
-			$convert_options = Qode_Optimizer_Options::get_convert_options();
-
-			$image = Qode_Optimizer_Image_Factory::create(
-				array(
-					'id'         => $id,
-					'media_size' => 'original',
-				)
-			);
-			if (
-				$image &&
-				'yes' === $convert_options[ $image::MIME_TYPE ]
-			) {
-				qode_optimizer_get_ajax_status( 'success', esc_html__( 'Image should be converted', 'qode-optimizer' ) );
-			}
-
-			qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Image should not be converted', 'qode-optimizer' ) );
 		}
 	}
 
@@ -776,9 +562,13 @@ class Qode_Optimizer_Media {
 			}
 
 			if ( $image ) {
-				if ( Qode_Optimizer_Options::get_option( 'watermark_image_path' ) ) {
+				if (
+					qode_optimizer_is_installed( 'optimizer-premium' ) &&
+					Qode_OptimizerPremium_Image_Watermarker::enabled()
+				) {
 
-					$output_watermarked = $image->image_and_thumbs_add_watermark();
+					$image_watermarker  = new Qode_OptimizerPremium_Image_Watermarker( $image );
+					$output_watermarked = $image_watermarker->image_and_thumbs_add_watermark();
 
 					if ( $output_watermarked->get_param( 'success' ) ) {
 						$output->set_param( 'watermarked_files', $output_watermarked->get_param( 'files' ) );
@@ -820,66 +610,72 @@ class Qode_Optimizer_Media {
 				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
 
 				// Additional conversion and optimization, if conversion is set in admin options.
-				$convert_options = Qode_Optimizer_Options::get_convert_options();
-				if ( 'yes' === $convert_options[ $image::MIME_TYPE ] ) {
+				if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+					$convert_options = Qode_OptimizerPremium_Options::get_convert_options();
+					if ( 'yes' === $convert_options[ $image::MIME_TYPE ] ) {
 
-					$image = Qode_Optimizer_Image_Factory::create(
-						array(
-							'id'         => $id,
-							'media_size' => 'original',
-						)
-					);
-					if ( $image ) {
-						$output_conversion = $image->image_and_thumbs_convert();
+						$image = Qode_Optimizer_Image_Factory::create(
+							array(
+								'id'         => $id,
+								'media_size' => 'original',
+							)
+						);
+						if ( $image ) {
+							$image_converter = Qode_OptimizerPremium_Image_Converter_Factory::create( $image );
+							if ( $image_converter ) {
+								$output_conversion = $image_converter->image_and_thumbs_convert();
 
-						if ( $output_conversion->get_param( 'success' ) ) {
-							$output->set_param( 'conversion_files', $output_conversion->get_param( 'files' ) );
-						} else {
-							$output->set_param( 'original_file', $output_conversion->get_param( 'original_file' ) );
-							$output->set_param( 'initial_size_raw', $output_conversion->get_param( 'initial_size_raw' ) );
-							$output->set_param( 'initial_size', $output_conversion->get_param( 'initial_size' ) );
-							$output->set_param( 'conversion_result', $output_conversion->get_param( 'result' ) );
-						}
-
-						$output->set_param( 'conversion_success', $output_conversion->get_param( 'success' ) );
-
-						// Elapsed time checkpoint.
-						$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-
-						// Additional optimization only if conversion is successful.
-						if ( $output->get_param( 'conversion_success' ) ) {
-
-							if ( 'yes' === $image->delete_original_images ) {
-								$image->image_and_thumbs_delete();
-							}
-
-							$image = Qode_Optimizer_Image_Factory::create(
-								array(
-									'id'         => $id,
-									'media_size' => 'original',
-									'additional_compression' => true,
-								)
-							);
-							if ( $image ) {
-								$output_optimization2 = $image->image_and_thumbs_optimize();
-
-								if ( $output_optimization2->get_param( 'success' ) ) {
-									$output->set_param( 'optimization2_files', $output_optimization2->get_param( 'files' ) );
+								if ( $output_conversion->get_param( 'success' ) ) {
+									$output->set_param( 'conversion_files', $output_conversion->get_param( 'files' ) );
 								} else {
-									$output->set_param( 'original_file', $output_optimization2->get_param( 'original_file' ) );
-									$output->set_param( 'initial_size_raw', $output_optimization2->get_param( 'initial_size_raw' ) );
-									$output->set_param( 'initial_size', $output_optimization2->get_param( 'initial_size' ) );
-									$output->set_param( 'optimization2_result', $output_optimization2->get_param( 'result' ) );
+									$output->set_param( 'original_file', $output_conversion->get_param( 'original_file' ) );
+									$output->set_param( 'initial_size_raw', $output_conversion->get_param( 'initial_size_raw' ) );
+									$output->set_param( 'initial_size', $output_conversion->get_param( 'initial_size' ) );
+									$output->set_param( 'conversion_result', $output_conversion->get_param( 'result' ) );
 								}
 
-								$output->set_param( 'optimization2_success', $output_optimization2->get_param( 'success' ) );
+								$output->set_param( 'conversion_success', $output_conversion->get_param( 'success' ) );
 
 								// Elapsed time checkpoint.
 								$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
+
+								// Additional optimization only if conversion is successful.
+								if ( $output->get_param( 'conversion_success' ) ) {
+
+									$image_converter->cleanup();
+
+									$image = Qode_Optimizer_Image_Factory::create(
+										array(
+											'id'                     => $id,
+											'media_size'             => 'original',
+											'additional_compression' => true,
+										)
+									);
+									if ( $image ) {
+										$output_optimization2 = $image->image_and_thumbs_optimize();
+
+										if ( $output_optimization2->get_param( 'success' ) ) {
+											$output->set_param( 'optimization2_files', $output_optimization2->get_param( 'files' ) );
+										} else {
+											$output->set_param( 'original_file', $output_optimization2->get_param( 'original_file' ) );
+											$output->set_param( 'initial_size_raw', $output_optimization2->get_param( 'initial_size_raw' ) );
+											$output->set_param( 'initial_size', $output_optimization2->get_param( 'initial_size' ) );
+											$output->set_param( 'optimization2_result', $output_optimization2->get_param( 'result' ) );
+										}
+
+										$output->set_param( 'optimization2_success', $output_optimization2->get_param( 'success' ) );
+
+										// Elapsed time checkpoint.
+										$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
+									}
+								} else {
+									$output->set_param( 'optimization2_skipped', true );
+								}
 							}
-						} else {
-							$output->set_param( 'optimization2_skipped', true );
 						}
+					} else {
+						$output->set_param( 'conversion_skipped', true );
+						$output->set_param( 'optimization2_skipped', true );
 					}
 				} else {
 					$output->set_param( 'conversion_skipped', true );
@@ -1087,82 +883,6 @@ class Qode_Optimizer_Media {
 				qode_optimizer_get_ajax_status( 'success', esc_html__( 'All images regenerated successfully', 'qode-optimizer' ), $output );
 			} else {
 				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Some/all images were not regenerated', 'qode-optimizer' ), $output );
-			}
-		}
-	}
-
-	/**
-	 * Ajax - image watermarking process
-	 */
-	public function handle_media_adding_watermark() {
-
-		if ( ! Qode_Optimizer_User::is_admin() ) {
-			wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-		}
-
-		if ( isset( $_POST ) && ! empty( $_POST ) ) {
-
-			if (
-				empty( $_POST['options']['qo_nonce'] ) ||
-				! wp_verify_nonce( sanitize_key( $_POST['options']['qo_nonce'] ), 'qo-nonce' )
-			) {
-				if ( ! wp_doing_ajax() ) {
-					wp_die( esc_html__( 'Access denied.', 'qode-optimizer' ) );
-				}
-
-				wp_die( wp_json_encode( array( 'error' => esc_html__( 'Access denied.', 'qode-optimizer' ) ) ) );
-			}
-
-			$output = new Qode_Optimizer_Output();
-			$output->set_param( 'files', array() );
-			$output->set_param( 'success', false );
-			$output->set_param( 'elapsed_time', false );
-
-			$id = 0;
-			if ( ! empty( $_POST['options']['id'] ) ) {
-				$id = intval( $_POST['options']['id'] );
-			}
-
-			$system_log = Qode_Optimizer_Log::get_instance();
-			$system_log->add_log( '', true );
-			$system_log->add_log( 'MEDIA MANUAL WATERMARKING', true );
-
-			$current_time        = microtime( true );
-			$elapsed_time_params = array(
-				'current' => $current_time,
-				'local'   => 0.0,
-				'total'   => 0.0,
-			);
-
-			$image = Qode_Optimizer_Image_Factory::create(
-				array(
-					'id'         => $id,
-					'media_size' => 'original',
-				)
-			);
-			if ( $image ) {
-
-				$system_log->add_log( 'Image: ' . wp_basename( $image->file ), true );
-				$system_log->add_log( '', true );
-
-				$output = $image->image_and_thumbs_add_watermark();
-
-				// Elapsed time checkpoint.
-				$elapsed_time_params = $system_log->set_elapsed_time_checkpoint( $elapsed_time_params );
-			}
-
-			$total_elapsed_time = number_format( $elapsed_time_params['total'], 4 );
-
-			$output->set_param( 'elapsed_time', $total_elapsed_time . 's' );
-
-			$system_log->add_log( 'Total elapsed time: ' . $total_elapsed_time . 's', true );
-
-			$system_log->write_log();
-
-			if ( $output->get_param( 'success' ) ) {
-				qode_optimizer_get_ajax_status( 'success', esc_html__( 'All images watermarked successfully', 'qode-optimizer' ), $output );
-			} else {
-				qode_optimizer_get_ajax_status( 'fail', esc_html__( 'Some/all images were not watermarked', 'qode-optimizer' ), $output );
 			}
 		}
 	}

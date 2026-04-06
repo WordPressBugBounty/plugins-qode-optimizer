@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'QODE_OPTIMIZER_VERSION', '1.0.4' );
+define( 'QODE_OPTIMIZER_VERSION', '1.2.2' );
 // Use the __DIR__ constant instead of calling dirname(__FILE__) (PHP >= 5.3).
 define( 'QODE_OPTIMIZER_ABS_PATH', __DIR__ );
 define( 'QODE_OPTIMIZER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) );
@@ -33,7 +33,7 @@ define( 'QODE_OPTIMIZER_CLASSES_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/classe
 define( 'QODE_OPTIMIZER_TESTS_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/tests' );
 define( 'QODE_OPTIMIZER_TOOLS_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/tools' );
 define( 'QODE_OPTIMIZER_DEMO_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/demo' );
-define( 'QODE_OPTIMIZER_LOGS_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/logs' );
+define( 'QODE_OPTIMIZER_EXTERNAL_LOGS_RELATIVE_FOLDER_PATH', 'qode-optimizer-logs' );
 define( 'QODE_OPTIMIZER_SAMPLES_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/samples' );
 define( 'QODE_OPTIMIZER_VENDOR_FOLDER_PATH', QODE_OPTIMIZER_ABS_PATH . '/vendor' );
 

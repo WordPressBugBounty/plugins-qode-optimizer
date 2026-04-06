@@ -25,13 +25,6 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 	const CONVERSION_MIME_TYPE = 'image/jpeg';
 
 	/**
-	 * Lossless PNG to WebP conversion
-	 *
-	 * @var string $lossless_png_to_webp_conversion
-	 */
-	public $lossless_png_to_webp_conversion = 'no';
-
-	/**
 	 * Create an image from file
 	 *
 	 * @param array $params
@@ -50,15 +43,13 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		if ( array_key_exists( 'compression_quality', $params ) ) {
 			$this->compression_quality = Qode_Optimizer_Utility::correct_integer( $params['compression_quality'] );
 		} elseif ( $this->additional_compression ) {
-			$this->compression_quality = ! is_null( Qode_Optimizer_Options::get_option( 'additional_png_compression_quality' ) ) ?
-				Qode_Optimizer_Options::get_option( 'additional_png_compression_quality' ) : 75;
+			if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+				$this->compression_quality = Qode_OptimizerPremium_Options::get_additional_png_compression_quality();
+			}
 		} else {
 			$this->compression_quality = ! is_null( Qode_Optimizer_Options::get_option( 'png_compression_quality' ) ) ?
 				Qode_Optimizer_Options::get_option( 'png_compression_quality' ) : 75;
 		}
-
-		$this->lossless_png_to_webp_conversion = ! is_null( Qode_Optimizer_Options::get_option( 'lossless_png_to_webp_conversion' ) ) ?
-			Qode_Optimizer_Options::get_option( 'lossless_png_to_webp_conversion' ) : 'no';
 	}
 
 	/**
@@ -107,7 +98,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 			$gd_image instanceof GdImage
 		) {
 			imagepng( $gd_image, $file );
-			imagedestroy( $gd_image );
+            unset( $gd_image );
 
 			return true;
 		}
@@ -128,7 +119,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 			$gd_image instanceof GdImage
 		) {
 			imagepng( $gd_image, $this->file );
-			imagedestroy( $gd_image );
+            unset( $gd_image );
 
 			return true;
 		}
@@ -197,8 +188,8 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 			}
 
 			list( $width, $height ) = wp_getimagesize( $this->file );
-			for ( $h = 0; $h < $height; $h++ ) {
-				for ( $w = 0; $w < $width; $w++ ) {
+			for ( $h = 0; $h < $height; $h ++ ) {
+				for ( $w = 0; $w < $width; $w ++ ) {
 					$color_index = imagecolorat( $image, $w, $h );
 					$rgb         = imagecolorsforindex( $image, $color_index );
 					if ( $rgb['alpha'] > 0 ) {
@@ -281,8 +272,10 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 	 * @return array
 	 */
 	public function get_additional_compression_method_from_options() {
-		$compression_method = ! is_null( Qode_Optimizer_Options::get_option( 'additional_png_compression_method' ) ) ?
-			Qode_Optimizer_Options::get_option( 'additional_png_compression_method' ) : '';
+		$compression_method = '';
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			$compression_method = Qode_OptimizerPremium_Options::get_additional_png_compression_method();
+		}
 
 		if ( 'none' === $compression_method ) {
 			return array();
@@ -314,13 +307,13 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 			return false;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$image->setImageFormat( 'PNG' );
 		/**
 		 * SetImageCompressionQuality not working on PNG images
-		$image->setImageCompressionQuality( Qode_Optimizer_Options::get_compression_quality() );
-		*/
+		 * $image->setImageCompressionQuality( Qode_Optimizer_Options::get_compression_quality() );
+		 */
 
 		$image_blob = $image->getImageBlob();
 		// alternative for PHP native file_put_contents function.
@@ -362,7 +355,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		$compression_quality = (int) ( ( 100 - $this->compression_quality ) / 10 );
 
 		imagepng( $image, $compressed_file, $compression_quality );
-		imagedestroy( $image );
+        unset( $image );
 
 		$system_log->add_log( 'Image was successfully compressed using GD' );
 
@@ -379,7 +372,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 	public function lossless_clt_compress( $compressed_file ) {
 		$system_log = Qode_Optimizer_Log::get_instance();
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if ( $filesystem->copy_file( $this->file, $compressed_file ) ) {
 			$success = false;
@@ -404,7 +397,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 	public function lossy_clt_compress( $compressed_file ) {
 		$system_log = Qode_Optimizer_Log::get_instance();
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		if ( $filesystem->copy_file( $this->file, $compressed_file ) ) {
 			$success = false;
@@ -432,7 +425,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		if ( Qode_Optimizer_Support::is_tool_working( 'pngquant' ) ) {
 			$system_log->add_log( 'Attempting to compress the image using Pngquant' );
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			if ( $filesystem->is_file( $compressed_file ) ) {
 
@@ -492,7 +485,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		if ( Qode_Optimizer_Support::is_tool_working( 'optipng' ) ) {
 			$system_log->add_log( 'Attempting to compress the image using Optipng' );
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			if ( $filesystem->is_file( $compressed_file ) ) {
 
@@ -557,7 +550,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		if ( Qode_Optimizer_Support::is_tool_working( 'pngout' ) ) {
 			$system_log->add_log( 'Attempting to compress the image using Pngout' );
 
-			$filesystem = new Qode_Optimizer_Filesystem();
+			$filesystem = new Qode_Optimizer_Filesystem( true );
 
 			if ( $filesystem->is_file( $compressed_file ) ) {
 
@@ -600,169 +593,6 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		$system_log->add_log( 'No compression was made using Pngout' );
 
 		return false;
-	}
-
-	/**********************************************
-	 * CONVERSION (OPTIONAL)
-	 *
-	 * 3rd step in optimizing images
-	 *********************************************/
-
-	/**
-	 * Get conversion params
-	 *
-	 * @return array
-	 */
-	protected function get_conversion_params() {
-		$conversion_params = array();
-
-		// If the user set a fill background for transparency.
-		$background_fill_color = Qode_Optimizer_Options::get_option( 'jpg_background_color_fill' );
-		if (
-			false !== $background_fill_color &&
-			! is_null( $background_fill_color )
-		) {
-			$conversion_params['red']        = hexdec( '0x' . strtoupper( substr( $background_fill_color, 0, 2 ) ) );
-			$conversion_params['green']      = hexdec( '0x' . strtoupper( substr( $background_fill_color, 2, 2 ) ) );
-			$conversion_params['blue']       = hexdec( '0x' . strtoupper( substr( $background_fill_color, 4, 2 ) ) );
-			$conversion_params['fill_color'] = $background_fill_color;
-		} else {
-			$conversion_params['red']        = '';
-			$conversion_params['green']      = '';
-			$conversion_params['blue']       = '';
-			$conversion_params['fill_color'] = '000000';
-		}
-
-		// If the user manually set the JPG quality.
-		$conversion_params['quality'] = ! is_null( Qode_Optimizer_Options::get_option( 'jpg_compression_quality' ) ) ?
-			Qode_Optimizer_Options::get_option( 'jpg_compression_quality' ) : 75;
-
-		return $conversion_params;
-	}
-
-	/**
-	 * Gmagick image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	protected function gmagick_convert_by_mime_type( $new_file, $conversion_params ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to convert the image using Gmagick' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if ( Qode_Optimizer_Support::get_system_param( 'gmagick_support_exists' ) ) {
-			try {
-				if ( $this->alpha_exists() ) {
-					$gmagick_overlay = new Gmagick( $this->file );
-					$gmagick         = new Gmagick();
-					$gmagick->newimage( $gmagick_overlay->getimagewidth(), $gmagick_overlay->getimageheight(), '#' . $conversion_params['fill_color'] );
-					$gmagick->compositeimage( $gmagick_overlay, 1, 0, 0 );
-				} else {
-					$gmagick = new Gmagick( $this->file );
-				}
-				$gmagick->setimageformat( 'JPG' );
-				$gmagick->setcompressionquality( $conversion_params['quality'] );
-				$gmagick->writeimage( $new_file );
-			} catch ( Exception $gmagick_error ) {
-				// Gmagick error report.
-				$system_log->add_log( 'Some error occurred while converting image using Gmagick' );
-			}
-
-			$system_log->add_log( 'Image was successfully converted using Gmagick' );
-
-			return $filesystem->filesize( $new_file );
-		}
-
-		$system_log->add_log( 'No conversion was made using Gmagick' );
-
-		return 0;
-	}
-
-	/**
-	 * Imagick image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	protected function imagick_convert_by_mime_type( $new_file, $conversion_params ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to convert the image using Imagick' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if ( Qode_Optimizer_Support::get_system_param( 'imagick_support_exists' ) ) {
-			try {
-				$imagick = new Imagick( $this->file );
-				if ( $this->alpha_exists() ) {
-					$imagick->setImageBackgroundColor( new ImagickPixel( '#' . $conversion_params['fill_color'] ) );
-					$imagick = $imagick->flattenImages();
-					$imagick->setImageAlphaChannel( 11 );
-				}
-				$imagick->setImageFormat( 'JPG' );
-				$imagick->setImageCompressionQuality( $conversion_params['quality'] );
-				$imagick->writeImage( $new_file );
-			} catch ( Exception $imagick_error ) {
-				// Imagick error report.
-				$system_log->add_log( 'Some error occurred while converting image using Imagick' );
-			}
-
-			$system_log->add_log( 'Image was successfully converted using Imagick' );
-
-			return $filesystem->filesize( $new_file );
-		}
-
-		$system_log->add_log( 'No conversion was made using Imagick' );
-
-		return 0;
-	}
-
-	/**
-	 * GD image conversion by mime-type
-	 *
-	 * @param string $new_file Converted image path
-	 * @param array $conversion_params Conversion params
-	 *
-	 * @return int File size
-	 */
-	protected function gd_convert_by_mime_type( $new_file, $conversion_params ) {
-		$system_log = Qode_Optimizer_Log::get_instance();
-
-		$system_log->add_log( 'Attempting to convert the image using GD' );
-
-		$filesystem = new Qode_Optimizer_Filesystem();
-
-		if ( Qode_Optimizer_Support::get_system_param( 'gd_support_exists' ) ) {
-			$input                  = imagecreatefrompng( $this->file );
-			list( $width, $height ) = wp_getimagesize( $this->file );
-
-			$output = imagecreatetruecolor( $width, $height );
-			if ( '' === $conversion_params['red'] ) {
-				$conversion_params['red']   = 255;
-				$conversion_params['green'] = 255;
-				$conversion_params['blue']  = 255;
-			}
-
-			$rgb = imagecolorallocate( $output, $conversion_params['red'], $conversion_params['green'], $conversion_params['blue'] );
-			imagefilledrectangle( $output, 0, 0, $width, $height, $rgb );
-			imagecopy( $output, $input, 0, 0, 0, 0, $width, $height );
-			imagejpeg( $output, $new_file, $conversion_params['quality'] );
-
-			$system_log->add_log( 'Image was successfully converted using GD' );
-
-			return $filesystem->filesize( $new_file );
-		}
-
-		$system_log->add_log( 'No conversion was made using GD' );
-
-		return 0;
 	}
 
 	/**********************************************
@@ -818,13 +648,12 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 			return false;
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
+		$filesystem = new Qode_Optimizer_Filesystem( true );
 
 		$image->setImageFormat( 'WEBP' );
 
-		if ( 'yes' !== $this->lossless_png_to_webp_conversion ) {
-			$image->setOption( 'webp:use-sharp-yuv', 'true' );
-			$image->setImageCompressionQuality( $this->webp_quality );
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			Qode_OptimizerPremium_Utility::imagick_create_webp_options( $image, $this );
 		} else {
 			$image->setOption( 'webp:lossless', true );
 			$image->setOption( 'webp:alpha-quality', 100 );
@@ -868,7 +697,7 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 		}
 
 		imagewebp( $image, $webp_file, $this->webp_quality );
-		imagedestroy( $image );
+        unset( $image );
 
 		$system_log->add_log( 'WebP image was successfully created using GD' );
 
@@ -881,8 +710,9 @@ class Qode_Optimizer_Png extends Qode_Optimizer_Image {
 	 * @return string
 	 */
 	protected function tool_create_webp_additional_options() {
-		if ( 'yes' !== $this->lossless_png_to_webp_conversion ) {
-			return '-q ' . $this->webp_quality . ' -sharp_yuv';
+
+		if ( qode_optimizer_is_installed( 'optimizer-premium' ) ) {
+			return Qode_OptimizerPremium_Utility::tool_create_webp_additional_options( $this );
 		} else {
 			return '-lossless';
 		}

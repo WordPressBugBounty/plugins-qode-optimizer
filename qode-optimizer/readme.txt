@@ -2,9 +2,9 @@
 Contributors: qodeinteractive
 Tags: image optimization, webp, convert images, compress images, resize images
 Requires at least: 6.3
-Tested up to: 6.7
-Requires PHP: 7.4
-Stable tag: 1.0.4
+Tested up to: 6.9
+Requires PHP: 8.1
+Stable tag: 1.2.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -155,6 +155,15 @@ Feel free to try out some of our other products:
 9. Conversion Options
 
 == Changelog ==
+
+= 1.2.2 - 09-03-2026 =
+- Updated Requires PHP version to 8.1
+
+= 1.2.1 - 03-03-2026 =
+- Migrated premium options and related code to the Premium plugin
+
+= 1.0.5 - 02-05-2026 =
+- Fixed the issue that occurred when deleting a plugin
 
 = 1.0.4 - 12-05-2024 =
 - Fixed minor software dependency bugs
