@@ -210,6 +210,8 @@ abstract class Qode_Optimizer_Image {
 			$params = array();
 		}
 
+		$filesystem = new Qode_Optimizer_Filesystem();
+
 		if ( array_key_exists( 'id', $params ) ) {
 			$this->id                 = intval( $params['id'] );
 			$this->attachment_id      = $this->id;
@@ -219,13 +221,18 @@ abstract class Qode_Optimizer_Image {
 			$this->attached_file_meta = get_post_meta( $this->id, '_wp_attached_file', true );
 			$this->metadata           = maybe_unserialize( wp_get_attachment_metadata( $this->id ) );
 			$this->media_size         = 'original';
-			$this->has_scaled_size    = $this->file !== $this->attached_file && false !== strpos( $this->attached_file, '-scaled.' );
+			$this->has_scaled_size    = is_string( $this->file ) && is_string( $this->attached_file ) && $this->file !== $this->attached_file && false !== strpos( $this->attached_file, '-scaled.' );
+
+			if ( ! is_string( $this->file ) || ! $filesystem->is_file( $this->file ) ) {
+				$resolved_file = Qode_Optimizer_Image_Factory::resolve_attachment_file( $this->id );
+				if ( false !== $resolved_file ) {
+					$this->file = $resolved_file;
+				}
+			}
 		}
 
-		$filesystem = new Qode_Optimizer_Filesystem();
-
 		if (
-			empty( $this->file ) &&
+			( empty( $this->file ) || ( is_string( $this->file ) && ! $filesystem->is_file( $this->file ) ) ) &&
 			array_key_exists( 'file', $params )
 		) {
 			if ( ! is_string( $params['file'] ) ) {

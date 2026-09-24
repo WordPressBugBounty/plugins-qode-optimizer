@@ -62,14 +62,24 @@ $all_media = Qode_Optimizer_Media::get_all();
 $all_ids_array         = array();
 $all_exclude_ids_array = array();
 foreach ( $all_media as $media ) {
-	if ( ! in_array( realpath( $media['path'] ), $all_exclude_images, true ) ) {
+	$inspection = Qode_Optimizer_Image_Factory::inspect(
+		array(
+			'id' => intval( $media['id'] ),
+		)
+	);
+	if ( empty( $inspection['ok'] ) ) {
+		continue;
+	}
+
+	$media_path = $inspection['file'];
+	if ( ! in_array( $media_path, $all_exclude_images, true ) ) {
 		$all_ids_array[] = intval( $media['id'] );
 	} else {
 		$all_exclude_ids_array[] = intval( $media['id'] );
 	}
 }
 
-$option_array['media']['all']['ids']   = $all_ids_array;
+$option_array['media']['all']['ids']   = array_values( $all_ids_array );
 $option_array['media']['all']['count'] = count( $option_array['media']['all']['ids'] );
 
 // Unoptimized images from Media.
@@ -96,7 +106,7 @@ if ( ! empty( $modifications_results ) ) {
 
 $modified_ids_array = array_map( 'intval', $modified_ids_array );
 
-$option_array['media']['unoptimized']['ids']   = array_diff( $all_ids_array, $modified_ids_array );
+$option_array['media']['unoptimized']['ids']   = array_values( array_diff( $all_ids_array, $modified_ids_array ) );
 $option_array['media']['unoptimized']['count'] = count( $option_array['media']['unoptimized']['ids'] );
 
 // Selected images from Media.
@@ -121,7 +131,7 @@ if (
 	);
 }
 
-$option_array['media']['selected']['ids']   = array_intersect( $selected_ids_array, $all_ids_array );
+$option_array['media']['selected']['ids']   = array_values( array_intersect( $selected_ids_array, $all_ids_array ) );
 $option_array['media']['selected']['count'] = count( $option_array['media']['selected']['ids'] );
 
 if ( empty( $selected_ids_array ) ) {
@@ -174,7 +184,7 @@ if ( ! empty( $additional_folders ) ) {
 	$all_files = array_diff( $all_files, $all_exclude_images );
 }
 
-$option_array['folders']['all']['paths'] = array_diff( $all_files, $backup_paths_array );
+$option_array['folders']['all']['paths'] = array_values( array_diff( $all_files, $backup_paths_array ) );
 $option_array['folders']['all']['count'] = count( $option_array['folders']['all']['paths'] );
 
 if ( 0 === $option_array['folders']['all']['count'] ) {
@@ -215,7 +225,7 @@ if ( ! empty( $modified_ids_for_deletion ) ) {
 	Qode_Optimizer_Db::delete_records_from_modifications_table( $modified_ids_for_deletion );
 }
 
-$option_array['folders']['unoptimized']['paths'] = array_diff( $all_files, $backup_paths_array, $modified_paths_array );
+$option_array['folders']['unoptimized']['paths'] = array_values( array_diff( $all_files, $backup_paths_array, $modified_paths_array ) );
 $option_array['folders']['unoptimized']['count'] = count( $option_array['folders']['unoptimized']['paths'] );
 
 if ( 0 === $option_array['folders']['unoptimized']['count'] ) {
@@ -225,12 +235,12 @@ if ( 0 === $option_array['folders']['unoptimized']['count'] ) {
 $option_array['folders']['none']['attr'][] = 'checked';
 $default_folders_option                    = 'none';
 
-$form_attr = wp_json_encode( $option_array );
+		$form_attr = wp_json_encode( $option_array );
 $qo_nonce  = wp_create_nonce( 'qo-nonce' );
 ?>
 <div class="qodef-bulk-content">
 	<div id="qodef-bulk-forms">
-		<form id="qodef-bulk-start" class="qodef-bulk-form" method="post" action="?page=optimization" <?php qode_optimizer_inline_attrs( array( 'data-params' => $form_attr ) ); ?> data-qo-nonce="<?php echo esc_html( $qo_nonce ); ?>">
+		<form id="qodef-bulk-start" class="qodef-bulk-form" method="post" action="?page=optimization" data-params="<?php echo esc_attr( $form_attr ); ?>" data-qo-nonce="<?php echo esc_attr( $qo_nonce ); ?>">
 			<div class="qodef-bulk-header-holder">
 				<h2><?php esc_html_e( 'Optimization Options', 'qode-optimizer' ); ?></h2>
 				<p><?php esc_html_e( 'Choose the options for the process of image optimization', 'qode-optimizer' ); ?></p>

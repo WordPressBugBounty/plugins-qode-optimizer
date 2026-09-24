@@ -18,20 +18,20 @@
 	var qodefOptimization = {
 		init: function () {
 			this.mainForm                 = $( '#qodef-bulk-start' );
-			this.mainFormParams           = typeof this.mainForm.data( 'params' ) !== 'undefined' ? this.mainForm.data( 'params' ) : {};
+			this.mainFormParams           = this.parseFormParams( this.mainForm );
 			this.allOptions               = $( 'input[type="radio"][name="bulk_option[]"], input[type="radio"][name="bulk_folders_option[]"]' );
 			this.option                   = $( 'input[type="radio"][name="bulk_option[]"]' );
 			this.checkedOption            = $( 'input[type="radio"][name="bulk_option[]"]:checked' );
 			this.optionValue              = this.checkedOption.length ? this.checkedOption.val() : 'none';
 			this.forceOptimization        = $( 'input[type="checkbox"][name="bulk_force_optimization"]' );
-			this.ids                      = this.mainFormParams['media'][this.optionValue]['ids'];
-			this.idsCount                 = this.mainFormParams['media'][this.optionValue]['count'];
+			this.ids                      = this.getOptionIds( this.optionValue );
+			this.idsCount                 = this.getOptionCount( 'media', this.optionValue );
 			this.foldersOption            = $( 'input[type="radio"][name="bulk_folders_option[]"]' );
 			this.checkedFoldersOption     = $( 'input[type="radio"][name="bulk_folders_option[]"]:checked' );
 			this.foldersOptionValue       = this.checkedFoldersOption.length ? this.checkedFoldersOption.val() : 'none';
 			this.foldersForceOptimization = $( 'input[type="checkbox"][name="bulk_folders_force_optimization"]' );
-			this.paths                    = this.mainFormParams['folders'][this.foldersOptionValue]['paths'];
-			this.pathsCount               = this.mainFormParams['folders'][this.foldersOptionValue]['count'];
+			this.paths                    = this.getOptionPaths( this.foldersOptionValue );
+			this.pathsCount               = this.getOptionCount( 'folders', this.foldersOptionValue );
 			this.mainFormSubmit           = $( '#qodef-bulk-start' ).find( 'input[type="submit"]' );
 			this.loading                  = $( '#qodef-bulk-loading .qodef-spinner-loading' );
 			this.message                  = $( '#qodef-bulk-loading .qodef-message' );
@@ -43,6 +43,8 @@
 				) : 0;
 			this.prograssBarCounter       = 0;
 			this.isProgressBarActive      = false;
+			this.isRunning                = false;
+			this.queue                    = [];
 			this.counter                  = $( '#qodef-bulk-counter' );
 			this.resultsHolder            = $( '#qodef-bulk-results' );
 
@@ -56,24 +58,17 @@
 				qodefOptimization.allOptions.on(
 					'change',
 					function () {
-						var option        = $( 'input[type="radio"][name="bulk_option[]"]:checked' ).val(),
-							foldersOption = $( 'input[type="radio"][name="bulk_folders_option[]"]:checked' ).val();
+						var option        = $( 'input[type="radio"][name="bulk_option[]"]:checked' ).val() || 'none',
+							foldersOption = $( 'input[type="radio"][name="bulk_folders_option[]"]:checked' ).val() || 'none';
 
-						qodefOptimization.ids      = qodefOptimization.mainFormParams['media'][option]['ids'];
-						qodefOptimization.idsCount = parseInt( qodefOptimization.mainFormParams['media'][option]['count'], 10 );
-						if ( isNaN( qodefOptimization.idsCount ) ) {
-							qodefOptimization.idsCount = 0;
-						}
-
-						qodefOptimization.paths      = qodefOptimization.mainFormParams['folders'][foldersOption]['paths'];
-						qodefOptimization.pathsCount = parseInt( qodefOptimization.mainFormParams['folders'][foldersOption]['count'], 10 );
-						if ( isNaN( qodefOptimization.pathsCount ) ) {
-							qodefOptimization.pathsCount = 0;
-						}
+						qodefOptimization.ids        = qodefOptimization.getOptionIds( option );
+						qodefOptimization.idsCount   = qodefOptimization.getOptionCount( 'media', option );
+						qodefOptimization.paths      = qodefOptimization.getOptionPaths( foldersOption );
+						qodefOptimization.pathsCount = qodefOptimization.getOptionCount( 'folders', foldersOption );
 
 						qodefOptimization.progressBarMaxCount = qodefOptimization.idsCount + qodefOptimization.pathsCount;
 
-						qodefOptimization.progressBar.prop( 'data-max', qodefOptimization.progressBarMaxCount );
+						qodefOptimization.progressBar.attr( 'data-max', qodefOptimization.progressBarMaxCount );
 						qodefOptimization.counter.find( 'span.qodef-max' ).text( qodefOptimization.progressBarMaxCount );
 						if ( qodefOptimization.progressBarMaxCount > 0 ) {
 							qodefOptimization.mainFormSubmit.prop(
@@ -93,97 +88,251 @@
 					function (e) {
 						e.preventDefault();
 
-						var formSubmitTrigger = document.activeElement.name;
-
-						if ( qodefOptimization.progressBarMaxCount > 0 ) {
-
-							qodefOptimization.mainFormSubmit.prop(
-								'disabled',
-								true
-							);
-							qodefOptimization.loading.removeClass( 'qodef-hidden' );
-							qodefOptimization.message.addClass( 'qodef-hidden' );
-							qodefOptimization.resultsHolder
-							.html( '' )
-							.removeClass( 'qodef-hidden' );
-
-							if ( qodefOptimization.progressBar.length ) {
-								if ( isNaN( qodefOptimization.progressBarMaxCount ) ) {
-									qodefOptimization.progressBarMaxCount = 0;
-								}
-
-								if ( qodefOptimization.isProgressBarActive ) {
-									qodefOptimization.progressBar.progressbar( 'destroy' );
-									qodefOptimization.prograssBarCounter = 0;
-									qodefOptimization.counter.find( 'span.qodef-current' ).text( qodefOptimization.prograssBarCounter );
-									qodefOptimization.isProgressBarActive = false;
-								}
-
-								qodefOptimization.progressBar
-								.removeClass( 'qodef-hidden' )
-								.progressbar(
-									{
-										max: qodefOptimization.progressBarMaxCount,
-										value: qodefOptimization.prograssBarCounter,
-										create: function ( event, ui ) {
-											qodefOptimization.isProgressBarActive = true;
-										}
-									}
-								);
-								qodefOptimization.counter
-								.removeClass( 'qodef-hidden' );
-
-								$( document ).on(
-									'ajaxStop',
-									function () {
-										qodefOptimization.mainFormSubmit.prop(
-											'disabled',
-											false
-										);
-										qodefOptimization.loading.addClass( 'qodef-hidden' );
-										qodefOptimization.message.removeClass( 'qodef-hidden' );
-									}
-								);
-							}
-							var ids      = qodefOptimization.ids,
-								paths	 = qodefOptimization.paths,
-								qo_nonce = $form.data( 'qo-nonce' ),
-								options  = {
-									qo_nonce: qo_nonce,
-									force_optimization: qodefOptimization.forceOptimization.length && qodefOptimization.forceOptimization.is( ':checked' )
-										? 'yes'
-										: 'no',
-							};
-
-							Object.values( ids ).map(
-								function ( element ) {
-									element = parseInt( element, 10 );
-
-									if ( ! isNaN( element ) ) {
-										options.id = element;
-
-										if ( formSubmitTrigger === 'bulk_optimization' ) {
-											qodefOptimization.ajaxOptimizeAndWebp( options );
-										}
-									}
-								}
-							);
-
-							Object.values( paths ).map(
-								function ( element ) {
-									if ( '' !== element ) {
-										options.path = element;
-
-										if ( formSubmitTrigger === 'bulk_optimization' ) {
-											qodefOptimization.ajaxFoldersOptimizeAndWebp( options );
-										}
-									}
-								}
-							);
+						if ( qodefOptimization.isRunning ) {
+							return;
 						}
+
+						qodefOptimization.startBulkOptimization( $form );
 					}
 				);
 			}
+		},
+
+		parseFormParams: function ( $form ) {
+			var raw = $form.attr( 'data-params' );
+
+			if ( typeof raw === 'string' && raw !== '' ) {
+				try {
+					return JSON.parse( raw );
+				} catch ( error ) {
+					// Continue with jQuery data fallback.
+				}
+			}
+
+			var data = $form.data( 'params' );
+
+			if ( typeof data === 'object' && data !== null ) {
+				return data;
+			}
+
+			return {
+				media: {},
+				folders: {}
+			};
+		},
+
+		getMediaOption: function ( option ) {
+			if (
+				typeof qodefOptimization.mainFormParams.media === 'object' &&
+				qodefOptimization.mainFormParams.media !== null &&
+				typeof qodefOptimization.mainFormParams.media[option] === 'object' &&
+				qodefOptimization.mainFormParams.media[option] !== null
+			) {
+				return qodefOptimization.mainFormParams.media[option];
+			}
+
+			return { ids: [], count: 0 };
+		},
+
+		getFoldersOption: function ( option ) {
+			if (
+				typeof qodefOptimization.mainFormParams.folders === 'object' &&
+				qodefOptimization.mainFormParams.folders !== null &&
+				typeof qodefOptimization.mainFormParams.folders[option] === 'object' &&
+				qodefOptimization.mainFormParams.folders[option] !== null
+			) {
+				return qodefOptimization.mainFormParams.folders[option];
+			}
+
+			return { paths: [], count: 0 };
+		},
+
+		normalizeList: function ( value ) {
+			if ( Array.isArray( value ) ) {
+				return value;
+			}
+
+			if ( value && typeof value === 'object' ) {
+				return Object.values( value );
+			}
+
+			return [];
+		},
+
+		getOptionIds: function ( option ) {
+			return qodefOptimization.normalizeList( qodefOptimization.getMediaOption( option ).ids );
+		},
+
+		getOptionPaths: function ( option ) {
+			return qodefOptimization.normalizeList( qodefOptimization.getFoldersOption( option ).paths );
+		},
+
+		getOptionCount: function ( group, option ) {
+			var source = 'media' === group ? qodefOptimization.getMediaOption( option ) : qodefOptimization.getFoldersOption( option ),
+				count  = parseInt( source.count, 10 );
+
+			if ( isNaN( count ) ) {
+				count = 0;
+			}
+
+			return count;
+		},
+
+		buildQueue: function () {
+			var queue = [];
+
+			qodefOptimization.normalizeList( qodefOptimization.ids ).forEach(
+				function ( element ) {
+					element = parseInt( element, 10 );
+
+					if ( ! isNaN( element ) ) {
+						queue.push(
+							{
+								type: 'media',
+								id: element
+							}
+						);
+					}
+				}
+			);
+
+			qodefOptimization.normalizeList( qodefOptimization.paths ).forEach(
+				function ( element ) {
+					if ( '' !== element && null !== element && typeof element !== 'undefined' ) {
+						queue.push(
+							{
+								type: 'folder',
+								path: element
+							}
+						);
+					}
+				}
+			);
+
+			return queue;
+		},
+
+		startBulkOptimization: function ( $form ) {
+			var queue = qodefOptimization.buildQueue();
+
+			qodefOptimization.queue               = queue;
+			qodefOptimization.progressBarMaxCount = queue.length;
+			qodefOptimization.prograssBarCounter  = 0;
+
+			if ( ! queue.length ) {
+				qodefOptimization.resultsHolder
+					.html( '<div class="qodef-result">' + ( window.qodeOptimizerBulkI18n && window.qodeOptimizerBulkI18n.emptyQueue ? window.qodeOptimizerBulkI18n.emptyQueue : 'No images were queued for optimization. Please reload the page and try again.' ) + '</div>' )
+					.removeClass( 'qodef-hidden' );
+				qodefOptimization.message.removeClass( 'qodef-hidden' );
+				return;
+			}
+
+			qodefOptimization.isRunning = true;
+			qodefOptimization.qoNonce   = $form.attr( 'data-qo-nonce' ) || $form.data( 'qo-nonce' );
+			qodefOptimization.forceValue = qodefOptimization.forceOptimization.length && qodefOptimization.forceOptimization.is( ':checked' )
+				? 'yes'
+				: 'no';
+
+			qodefOptimization.mainFormSubmit.prop( 'disabled', true );
+			qodefOptimization.loading.removeClass( 'qodef-hidden' );
+			qodefOptimization.message.addClass( 'qodef-hidden' );
+			qodefOptimization.resultsHolder
+				.html( '' )
+				.removeClass( 'qodef-hidden' );
+			qodefOptimization.counter.find( 'span.qodef-max' ).text( qodefOptimization.progressBarMaxCount );
+			qodefOptimization.counter.find( 'span.qodef-current' ).text( 0 );
+
+			if ( qodefOptimization.progressBar.length ) {
+				if ( qodefOptimization.isProgressBarActive ) {
+					qodefOptimization.progressBar.progressbar( 'destroy' );
+					qodefOptimization.isProgressBarActive = false;
+				}
+
+				qodefOptimization.progressBar
+					.removeClass( 'qodef-hidden' )
+					.progressbar(
+						{
+							max: qodefOptimization.progressBarMaxCount,
+							value: 0,
+							create: function () {
+								qodefOptimization.isProgressBarActive = true;
+							}
+						}
+					);
+				qodefOptimization.counter.removeClass( 'qodef-hidden' );
+			}
+
+			qodefOptimization.processQueue();
+		},
+
+		processQueue: function () {
+			if ( ! qodefOptimization.queue.length ) {
+				qodefOptimization.finishBulkOptimization();
+				return;
+			}
+
+			var item    = qodefOptimization.queue.shift(),
+				options = {
+					qo_nonce: qodefOptimization.qoNonce,
+					force_optimization: qodefOptimization.forceValue
+				};
+
+			if ( 'media' === item.type ) {
+				options.id = item.id;
+				qodefOptimization.ajaxOptimizeAndWebp( options );
+				return;
+			}
+
+			options.path = item.path;
+			qodefOptimization.ajaxFoldersOptimizeAndWebp( options );
+		},
+
+		finishBulkOptimization: function () {
+			qodefOptimization.isRunning = false;
+			qodefOptimization.mainFormSubmit.prop( 'disabled', false );
+			qodefOptimization.loading.addClass( 'qodef-hidden' );
+			qodefOptimization.message.removeClass( 'qodef-hidden' );
+		},
+
+		onItemComplete: function () {
+			qodefOptimization.prograssBarCounter++;
+
+			if ( qodefOptimization.progressBar.length && qodefOptimization.isProgressBarActive ) {
+				qodefOptimization.progressBar.progressbar( { value: qodefOptimization.prograssBarCounter } );
+			}
+
+			qodefOptimization.counter.find( 'span.qodef-current' ).text( qodefOptimization.prograssBarCounter );
+
+			window.setTimeout(
+				function () {
+					qodefOptimization.processQueue();
+				},
+				0
+			);
+		},
+
+		parseAjaxResponse: function ( data ) {
+			if ( typeof data === 'object' && data !== null ) {
+				return data;
+			}
+
+			try {
+				return $.parseJSON( data );
+			} catch ( error ) {
+				return null;
+			}
+		},
+
+		appendRequestError: function ( randomNumber, message ) {
+			var currentResultItem = qodefOptimization.resultsHolder.find( '.qodef-result.qodef-item-' + randomNumber );
+
+			if ( ! currentResultItem.length ) {
+				qodefOptimization.resultsHolder.prepend( '<div class="qodef-result qodef-item-' + randomNumber + '"></div>' );
+				currentResultItem = qodefOptimization.resultsHolder.find( '.qodef-result.qodef-item-' + randomNumber );
+			}
+
+			currentResultItem.append( '<div class="qodef-file-name"><span class="qodef-title">Optimization:</span> <span class="qodef-value">' + message + '</span></div>' );
+			currentResultItem.removeClass( 'qodef-hidden' );
 		},
 
 		randomNumberGenerator: function ( min = 10000, max = 99999 ) {
@@ -238,7 +387,7 @@
 						options: options,
 					},
 					success: function ( data ) {
-						var response                 = $.parseJSON( data ),
+						var response                 = qodefOptimization.parseAjaxResponse( data ),
 							watermarkedIndex         = false,
 							watermarkedScaledIndex   = false,
 							optimizationIndex        = false,
@@ -252,6 +401,30 @@
 
 						qodefOptimization.resultsHolder.prepend( '<div class="qodef-result qodef-item-' + randomNumber + ' qodef-hidden"></div>' );
 						currentResultItem = qodefOptimization.resultsHolder.find( '.qodef-result.qodef-item-' + randomNumber );
+
+						if ( ! response || typeof response.data !== 'object' || ! response.data || typeof response.data.params !== 'object' || ! response.data.params ) {
+							qodefOptimization.appendRequestError(
+								randomNumber,
+								response && response.error ? response.error : 'Unexpected response while optimizing the image.'
+							);
+							return;
+						}
+
+						if ( ! Array.isArray( response.data.params.watermarked_files ) ) {
+							response.data.params.watermarked_files = [];
+						}
+						if ( ! Array.isArray( response.data.params.optimization_files ) ) {
+							response.data.params.optimization_files = [];
+						}
+						if ( ! Array.isArray( response.data.params.conversion_files ) ) {
+							response.data.params.conversion_files = [];
+						}
+						if ( ! Array.isArray( response.data.params.optimization2_files ) ) {
+							response.data.params.optimization2_files = [];
+						}
+						if ( ! Array.isArray( response.data.params.webp_files ) ) {
+							response.data.params.webp_files = [];
+						}
 
 						if ( response.data.params.watermarked_files.length ) {
 							watermarkedIndex       = response.data.params.watermarked_files.map( element => element.params.media_size ).indexOf( 'original' );
@@ -416,10 +589,6 @@
 									currentResultItem.append( '<div><span class="qodef-title">WebP:</span> <span class="qodef-value">' + response.data.params.webp_result + '</span></div>' );
 								}
 							}
-
-							qodefOptimization.prograssBarCounter++;
-							qodefOptimization.progressBar.progressbar( { value: qodefOptimization.prograssBarCounter } );
-							qodefOptimization.counter.find( 'span.qodef-current' ).text( qodefOptimization.prograssBarCounter );
 						} else {
 							currentResultItem.append( '<div class="qodef-file-name"><span class="qodef-title">File:</span> <span class="qodef-value">' + response.data.params.original_file + '</span></div>' );
 							currentResultItem.append( '<div><span class="qodef-title">Image Source:</span> <span class="qodef-value">Media Library</span></div>' );
@@ -431,6 +600,15 @@
 						}
 
 						currentResultItem.removeClass( 'qodef-hidden' );
+					},
+					error: function ( jqXHR, textStatus ) {
+						qodefOptimization.appendRequestError(
+							randomNumber,
+							textStatus ? textStatus : 'Request failed'
+						);
+					},
+					complete: function () {
+						qodefOptimization.onItemComplete();
 					},
 				}
 			);
@@ -454,7 +632,15 @@
 						options: options,
 					},
 					success: function ( data ) {
-						var response = $.parseJSON( data );
+						var response = qodefOptimization.parseAjaxResponse( data );
+
+						if ( ! response || typeof response.data !== 'object' || ! response.data || typeof response.data.params !== 'object' || ! response.data.params ) {
+							qodefOptimization.appendRequestError(
+								randomNumber,
+								response && response.error ? response.error : 'Unexpected response while optimizing the image.'
+							);
+							return;
+						}
 
 						if ( response.status === 'success' ) {
 
@@ -535,10 +721,6 @@
 									currentResultItem.append( '<div><span class="qodef-title">WebP:</span> <span class="qodef-value">' + response.data.params.webp_result + '</span></div>' );
 								}
 							}
-
-							qodefOptimization.prograssBarCounter++;
-							qodefOptimization.progressBar.progressbar( { value: qodefOptimization.prograssBarCounter } );
-							qodefOptimization.counter.find( 'span.qodef-current' ).text( qodefOptimization.prograssBarCounter );
 						} else {
 							currentResultItem.append( '<div class="qodef-file-name"><span class="qodef-title">File:</span> <span class="qodef-value">' + response.data.params.original_file + '</span></div>' );
 							currentResultItem.append( '<div><span class="qodef-title">Image Source:</span> <span class="qodef-value">Folders</span></div>' );
@@ -550,6 +732,15 @@
 						}
 
 						currentResultItem.removeClass( 'qodef-hidden' );
+					},
+					error: function ( jqXHR, textStatus ) {
+						qodefOptimization.appendRequestError(
+							randomNumber,
+							textStatus ? textStatus : 'Request failed'
+						);
+					},
+					complete: function () {
+						qodefOptimization.onItemComplete();
 					},
 				}
 			);

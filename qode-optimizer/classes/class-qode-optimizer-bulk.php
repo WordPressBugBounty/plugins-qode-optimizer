@@ -93,6 +93,17 @@ class Qode_Optimizer_Bulk {
 					'media_size' => 'original',
 				)
 			);
+			if ( ! $image ) {
+				$inspection = Qode_Optimizer_Image_Factory::inspect(
+					array(
+						'id' => $id,
+					)
+				);
+				$attached_file = get_attached_file( $id );
+				$system_log->add_log( 'Image could not be loaded for attachment ID: ' . $id . ( ! empty( $inspection['reason'] ) ? ' (' . $inspection['reason'] . ')' : '' ), true );
+				$output->set_param( 'original_file', is_string( $attached_file ) && '' !== $attached_file ? wp_basename( $attached_file ) : '#' . $id );
+				$output->set_param( 'optimization_result', ! empty( $inspection['message'] ) ? $inspection['message'] : esc_html__( 'File not found or unsupported type', 'qode-optimizer' ) );
+			}
 			if ( $image ) {
 
 				$system_log->add_log( 'Image: ' . wp_basename( $image->file ), true );
@@ -386,6 +397,16 @@ class Qode_Optimizer_Bulk {
 					'media_size' => 'folders',
 				)
 			);
+			if ( ! $image ) {
+				$inspection = Qode_Optimizer_Image_Factory::inspect(
+					array(
+						'file' => $path,
+					)
+				);
+				$system_log->add_log( 'Image could not be loaded for path: ' . $path . ( ! empty( $inspection['reason'] ) ? ' (' . $inspection['reason'] . ')' : '' ), true );
+				$output->set_param( 'original_file', wp_basename( $path ) );
+				$output->set_param( 'optimization_result', ! empty( $inspection['message'] ) ? $inspection['message'] : esc_html__( 'File not found or unsupported type', 'qode-optimizer' ) );
+			}
 			if ( $image ) {
 
 				$system_log->add_log( 'Image: ' . wp_basename( $image->file ), true );

@@ -2,9 +2,9 @@
 Contributors: qodeinteractive
 Tags: image optimization, webp, convert images, compress images, resize images
 Requires at least: 6.3
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -155,6 +155,14 @@ Feel free to try out some of our other products:
 9. Conversion Options
 
 == Changelog ==
+
+= 1.2.3 - 09-24-2026 =
+- Added a fallback to the attached/scaled file when the original upload is missing
+- Improved error reporting when an image file is missing or cannot be optimized
+- Improved bulk optimization messages when a file cannot be processed
+- Excluded WebP originals, missing files and other unsupported media types from bulk optimization counts
+- Fixed bulk optimization finishing immediately with 0 processed images
+- Bulk optimization now processes images one by one instead of all at once
 
 = 1.2.2 - 09-03-2026 =
 - Updated Requires PHP version to 8.1

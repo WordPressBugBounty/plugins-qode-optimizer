@@ -5,7 +5,7 @@
 * Description: The QODE Optimizer plugin is developed to allow you to convert, compress and adjust file sizes for all the images found on your website.
 * Author: Qode Interactive
 * Author URI: https://qodeinteractive.com/
-* Version: 1.2.2
+* Version: 1.2.3
 * Requires at least: 6.3
 * Requires PHP: 8.1
 * License: GPLv3

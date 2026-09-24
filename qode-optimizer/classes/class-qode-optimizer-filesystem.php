@@ -175,12 +175,16 @@ class Qode_Optimizer_Filesystem {
 	 * @return bool|string
 	 */
 	public function get_mime_type( $file ) {
+		if ( ! is_string( $file ) || '' === $file ) {
+			return false;
+		}
+
 		$file = realpath( $file );
 		if ( ! $this->is_file( $file ) ) {
 			return false;
 		}
 
-		$file_contents = $this->get_wpfilesystem()->get_contents( $file );
+		$file_contents = file_get_contents( $file, false, null, 0, 4096 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( $file_contents ) {
 			// Read first 12 bytes, which equates to 24 hex characters.
 			$handle = bin2hex( substr( $file_contents, 0, 12 ) );
@@ -205,7 +209,7 @@ class Qode_Optimizer_Filesystem {
 			if ( '25504446' === substr( $handle, 0, 8 ) ) {
 				return 'application/pdf';
 			}
-			if ( preg_match( '/<svg/', substr( $file_contents, 0, 4096 ) ) ) {
+			if ( preg_match( '/<svg/', $file_contents ) ) {
 				return 'image/svg+xml';
 			}
 		}
@@ -222,6 +226,10 @@ class Qode_Optimizer_Filesystem {
 	 * @return bool
 	 */
 	public function is_file( $file, $local = true ) {
+		if ( ! is_string( $file ) || '' === $file ) {
+			return false;
+		}
+
 		if ( true === $local ) {
 			$protocols = array( '://' );
 			foreach ( $protocols as $protocol ) {
@@ -232,6 +240,9 @@ class Qode_Optimizer_Filesystem {
 		}
 
 		$file = realpath( $file );
+		if ( false === $file ) {
+			return false;
+		}
 
 		return $this->get_wpfilesystem()->is_file( $file );
 	}
